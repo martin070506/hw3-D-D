@@ -9,12 +9,9 @@ public class GameBoard {
     public GameTile[][] BuildBoard(String TXTFilePath) throws IOException
     {
         String content = Files.readString(Paths.get(TXTFilePath));
-        int height=1;
-        for(int i=0;i<content.length();i++)
-        {
-            if(content.charAt(i)=='\n') height++;
-        }
-        int Length=(content.length()/height)-1;
+        String[] lines = content.split("\n");
+        int height = lines.length;
+        int Length = lines[0].length();
         GameTile[][] NewBoard=new GameTile[height][Length];
         int CurrentYPos=0;
         int CurrentXPos=0;
@@ -28,7 +25,7 @@ public class GameBoard {
             {
                 if(CurrentXPos<=48 && CurrentYPos<=18)
                 {
-                    NewBoard[CurrentYPos][CurrentXPos]=new GameTile(content.charAt(i));
+                    NewBoard[CurrentYPos][CurrentXPos]=new GameTile(content.charAt(i),CurrentXPos,CurrentYPos);
                     CurrentXPos++;
                 }
 
