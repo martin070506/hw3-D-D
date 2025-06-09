@@ -29,10 +29,10 @@ public class GameBoardTest {
         GameBoard board = new GameBoard(tempFile.toString());
         GameTile[][] tiles = board.GetBoard();
 
-        assertEquals('@', tiles[0][0].GetTile());
-        assertEquals('C', tiles[1][2].GetTile());
-        assertEquals('A', tiles[1][0].GetTile());
-        assertEquals('H', tiles[2][3].GetTile());
+        assertEquals('@', tiles[0][0].getType());
+        assertEquals('C', tiles[1][2].getType());
+        assertEquals('A', tiles[1][0].getType());
+        assertEquals('H', tiles[2][3].getType());
     }
 
     @Test

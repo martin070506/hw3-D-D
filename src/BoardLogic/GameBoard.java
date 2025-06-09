@@ -8,30 +8,35 @@ public class GameBoard {
 
     public GameTile[][] BuildBoard(String TXTFilePath) throws IOException
     {
+
         String content = Files.readString(Paths.get(TXTFilePath));
-        String[] lines = content.split("\n");
-        int height = lines.length;
-        int Length = lines[0].length();
-        GameTile[][] NewBoard=new GameTile[height][Length];
-        int CurrentYPos=0;
-        int CurrentXPos=0;
+        int height=1;
+        for(int i=0;i<content.length();i++)
+        {
+            if(content.charAt(i)=='\n') height++;
+        }
+        int length=(content.length()/height)-1;
+        GameTile[][] newBoard=new GameTile[height][length];
+        int currentYPos=0;
+        int currentXPos=0;
         for(int i=0;i<content.length();i++)
         {
             if(content.charAt(i)=='\n') {
-                CurrentYPos++;
-                CurrentXPos=0;
+                currentYPos++;
+                currentXPos=0;
             }
             else
             {
-                if(CurrentXPos<=48 && CurrentYPos<=18)
+                if(currentXPos<=48 && currentYPos<=18)
                 {
-                    NewBoard[CurrentYPos][CurrentXPos]=new GameTile(content.charAt(i),CurrentXPos,CurrentYPos);
-                    CurrentXPos++;
+                    newBoard[currentYPos][currentXPos] =
+                            new GameTile(content.charAt(i), currentXPos, currentYPos);
+                    currentXPos++;
                 }
 
             }
         }
-        return NewBoard;
+        return newBoard;
 
     }
     public GameBoard(String TXTFilePath) throws IOException {
@@ -44,7 +49,7 @@ public class GameBoard {
         for (GameTile[] row : Board) {
             for (GameTile tile : row) {
 
-                sb.append(tile.GetTile());
+                sb.append(tile.getType());
 
             }
             sb.append('\n');
