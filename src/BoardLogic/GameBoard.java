@@ -8,6 +8,7 @@ public class GameBoard {
 
     public GameTile[][] BuildBoard(String TXTFilePath) throws IOException
     {
+
         String content = Files.readString(Paths.get(TXTFilePath));
         int height=1;
         for(int i=0;i<content.length();i++)
