@@ -1,4 +1,6 @@
 import BoardLogic.GameBoard;
+import Player_Types.Player;
+import Unit_Logic.Unit;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,12 +12,18 @@ public class Main {
     public static void main(String[] args) throws IOException {
         
 
-        String folderPath = args[0];
-        String content = Files.readString(Paths.get(folderPath));
-        GameBoard b=new GameBoard(folderPath);
+        //String folderPath = args[0];
+        //String content = Files.readString(Paths.get("C:\Users\malin\OneDrive\Desktop\levels_dir\level1.txt"));
+        GameBoard b=new GameBoard("C:\\Users\\malin\\OneDrive\\Desktop\\levels_dir\\level1.txt");
         System.out.println(b);
         System.out.println("**************");
         System.out.println(b.GetBoard()[0][48]==null);
+
+
+        Unit x= new Player("martin",150,15,60,b);
+        x.setHealth(120);
+        System.out.println(x.getHealth());
+
 
     }
 }

@@ -9,11 +9,11 @@ public class Unit {
     private int defense;
 
 
-    public Unit(String name, int maxHealth, int health, int attack, int defense) {
+    public Unit(String name, int maxHealth, int attack, int defense) {
 
         this.name = name;
         this.maxHealth = maxHealth;
-        this.health = health;
+        this.health = maxHealth;
         this.attack = attack;
         this.defense = defense;
     }

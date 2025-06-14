@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 public class GameBoard {
     private GameTile[][] Board;
+    private Point playerPosition;
 
     public GameTile[][] BuildBoard(String TXTFilePath) throws IOException
     {
@@ -29,9 +30,14 @@ public class GameBoard {
             {
                 if(currentXPos<=48 && currentYPos<=18)
                 {
+                    if(content.charAt(i)=='@')
+                    {
+                        setPlayerPosition(new Point(currentXPos,currentYPos));
+                    }
                     newBoard[currentYPos][currentXPos] =
                             new GameTile(content.charAt(i), currentXPos, currentYPos);
                     currentXPos++;
+
                 }
 
             }
@@ -55,6 +61,15 @@ public class GameBoard {
             sb.append('\n');
         }
         return sb.toString();
+    }
+
+    public void setPlayerPosition(Point position)
+    {
+        this.playerPosition=position;
+    }
+    public Point getPlayerPosition()
+    {
+        return this.playerPosition;
     }
 
     public GameTile[][] GetBoard()
