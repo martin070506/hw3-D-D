@@ -16,7 +16,7 @@ public class GameBoard {
         {
             if(content.charAt(i)=='\n') height++;
         }
-        int length=(content.length()/height)-1;
+        int length=(content.length()/height);
         GameTile[][] newBoard=new GameTile[height][length];
         int currentYPos=0;
         int currentXPos=0;
@@ -28,14 +28,13 @@ public class GameBoard {
             }
             else
             {
-                if(currentXPos<=48 && currentYPos<=18)
+                if(currentXPos<=length&& currentYPos<=height)
                 {
                     if(content.charAt(i)=='@')
                     {
                         setPlayerPosition(new Point(currentXPos,currentYPos));
                     }
-                    newBoard[currentYPos][currentXPos] =
-                            new GameTile(content.charAt(i), currentXPos, currentYPos);
+                    newBoard[currentYPos][currentXPos] = new GameTile(content.charAt(i), currentXPos, currentYPos);
                     currentXPos++;
 
                 }
@@ -65,7 +64,11 @@ public class GameBoard {
 
     public void setPlayerPosition(Point position)
     {
+//        int currentX=playerPosition.getX();
+//        int currentY=playerPosition.getY();
         this.playerPosition=position;
+//        GameTile[][] gameBoard=this.GetBoard();
+//        gameBoard[currentY][currentX]=new GameTile('.',currentX,currentY);
     }
     public Point getPlayerPosition()
     {

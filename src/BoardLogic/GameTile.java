@@ -1,22 +1,31 @@
 package BoardLogic;
 
 
+import Unit_Logic.Unit;
+
 public class GameTile {
 
     private char type;
     private Point position;
+    private boolean isUnit;
+    private Unit unit;
 
 
     public GameTile(char type, int x, int y) {
 
         this.type = type;
         this.position = new Point(x, y);
+        this.isUnit=false;
+        this.unit=null;
+    }
+    public GameTile(char type,Unit unit,int x,int y)
+    {
+        this.position=new Point(x,y);
+        this.isUnit=true;
+        this.type=type;
     }
 
-    public GameTile(char type, Point position) {
 
-        this(type, position.getX(), position.getY());
-    }
 
     public char getType() { return type; }
     public Point getPosition() { return position; }

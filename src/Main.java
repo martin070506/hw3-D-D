@@ -20,9 +20,7 @@ public class Main {
         System.out.println(b.GetBoard()[0][48]==null);
 
 
-        Unit x= new Player("martin",150,15,60,b);
-        x.setHealth(120);
-        System.out.println(x.getHealth());
+
 
 
     }
