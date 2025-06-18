@@ -14,13 +14,11 @@ public abstract class Player extends Unit {
     private int playerLevel;
     private GameBoard gameBoard;
 
-    public Player(String name, int maxHealth, int attack, int defense,GameBoard board)
+    public Player(String name, int maxHealth, int attack, int defense)
     {
         super(name,maxHealth,attack,defense);
-        this.playerLocation=getPlayerLocationFromBoard(board);
         this.experience=0;
         this.playerLevel=1;
-        this.gameBoard=board;
         // arguments Like Range will be received in the specific PlayerTypes classes e.g:"mage"
     }
     private Point getPlayerLocationFromBoard(GameBoard board)
@@ -62,7 +60,6 @@ public abstract class Player extends Unit {
     public void setPlayerLocation(Point playerLocation)
     {
         this.playerLocation=playerLocation;
-        this.gameBoard.setPlayerPosition(playerLocation);
     }
     public Point getPlayerLocation()
     {

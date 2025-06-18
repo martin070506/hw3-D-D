@@ -11,18 +11,17 @@ public class GameTile {
     private Unit unit;
 
 
-    public GameTile(char type, int x, int y) {
+    public GameTile(char type, Unit unit, int x, int y) {
 
         this.type = type;
+        this.unit = unit;
+        this.isUnit=(unit!=null);
         this.position = new Point(x, y);
-        this.isUnit=false;
-        this.unit=null;
     }
-    public GameTile(char type,Unit unit,int x,int y)
-    {
-        this.position=new Point(x,y);
-        this.isUnit=true;
-        this.type=type;
+
+    public GameTile(char type, Unit unit, Point position) {
+
+        this(type, unit, position.getX(), position.getY());
     }
 
 
@@ -36,6 +35,11 @@ public class GameTile {
             position.setX(x);
         if (y != null)
             position.setY(y);
+    }
+
+    public Unit getUnit()
+    {
+        return this.unit;
     }
 
     public void setType(char type) { this.type = type; }

@@ -9,9 +9,9 @@ public class Rogue extends Player {
     private int maxEnergy;
     private int currentEnergy;
     private int abilityCost;
-    public Rogue(String name, int maxHealth, int attack, int defense,int abilityCost,GameBoard board)
+    public Rogue(String name, int maxHealth, int attack, int defense,int abilityCost)
     {
-        super(name,maxHealth,attack,defense,board);
+        super(name,maxHealth,attack,defense);
         this.attackRange=2;
         this.maxEnergy=100;
         this.currentEnergy=maxEnergy;

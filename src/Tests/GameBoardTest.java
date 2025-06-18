@@ -3,93 +3,79 @@ package Tests;
 import BoardLogic.GameBoard;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
+import Player_Types.Player;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static BoardLogic.GameBoard.choosePlayer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameBoardTest {
     private static Path tempFile;
+    private static final String TEST_MAP =
+            "@.#\n" +
+                    "###\n" +
+                    "...";
 
-    @BeforeAll
-    public static void setup() throws IOException {
-        String testBoard =  "@.\n" +
-                            "#.\n" +
-                            "..";
-        tempFile = Files.createTempFile("test_board_temp", ".txt");
-        Files.writeString(tempFile, testBoard);
+    @BeforeEach
+    public void setUp() throws IOException {
+        tempFile = Files.createTempFile("test_board", ".txt");
+        Files.writeString(tempFile, TEST_MAP);
+    }
+
+    @AfterEach
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(tempFile);
     }
 
     @Test
-    public void testBoardBuildsCorrectly() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
+    public void testBoardBuildAndPlayerPosition() throws IOException {
+        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+
         GameTile[][] tiles = board.GetBoard();
-        assertEquals('@', tiles[0][0].getType());
-        assertEquals('.', tiles[0][1].getType());
-        assertEquals('#', tiles[1][0].getType());
-        assertEquals('.', tiles[2][1].getType());
-    }
+        assertNotNull(tiles);
+        assertEquals(3, tiles.length);         // Height
+        assertEquals(3, tiles[0].length);      // Width
 
-    @Test
-    public void testPlayerPositionSetCorrectly() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
         Point playerPos = board.getPlayerPosition();
+        assertNotNull(playerPos);
         assertEquals(0, playerPos.getX());
         assertEquals(0, playerPos.getY());
+
+        GameTile playerTile = tiles[0][0];
+        assertEquals('@', playerTile.getType());
+        assertNotNull(playerTile.getUnit());
     }
 
     @Test
-    public void testToStringRepresentation() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
-        String boardString = board.toString().trim();
-        assertTrue(boardString.contains("@."));
-        assertTrue(boardString.contains("#."));
-        assertTrue(boardString.contains(".."));
-    }
+    public void testBoardToString() throws IOException {
+        GameBoard board = new GameBoard(tempFile.toString(),choosePlayer("5"));
 
-    @Test
-    public void testTileTypes() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
-        GameTile[][] tiles = board.GetBoard();
-        assertEquals('.', tiles[2][0].getType());
-        assertEquals('.', tiles[2][1].getType());
+        String expected =
+                "@.#\n" +
+                        "###\n" +
+                        "...\n";
+
+        assertEquals(expected, board.toString());
     }
 
     @Test
     public void testSetPlayerPosition() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
-        Point newPoint = new Point(1, 2);
-        board.setPlayerPosition(newPoint);
-        Point result = board.getPlayerPosition();
-        assertEquals(1, result.getX());
-        assertEquals(2, result.getY());
-    }
+        GameBoard board = new GameBoard(tempFile.toString(),choosePlayer("5"));
 
-    @Test
-    public void testBoardDimensions() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
-        GameTile[][] tiles = board.GetBoard();
-        assertEquals(3, tiles.length); // 3 rows
-        assertEquals(2, tiles[0].length); // 2 columns
-    }
+        Point newPos = new Point(2, 2);
+        board.setPlayerPosition(newPos);
 
-    @Test
-    public void testNoExtraCharacters() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString());
-        GameTile[][] tiles = board.GetBoard();
-        for (GameTile[] row : tiles) {
-            for (GameTile tile : row) {
-                char type = tile.getType();
-                assertTrue(type == '@' || type == '.' || type == '#');
-            }
-        }
-    }
+        assertEquals(2, board.getPlayerPosition().getX());
+        assertEquals(2, board.getPlayerPosition().getY());
 
-    @AfterAll
-    public static void cleanup() throws IOException {
-        Files.deleteIfExists(tempFile);
+        GameTile newTile = board.GetBoard()[2][2];
+        assertEquals('@', newTile.getType());
+
+        GameTile oldTile = board.GetBoard()[0][0];
+        assertEquals('.', oldTile.getType());
     }
 }

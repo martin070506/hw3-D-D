@@ -30,7 +30,7 @@ public class PlayerTest {
     @BeforeEach
     public void setupGame() throws IOException {
         board = new GameBoard(tempFile.toString());
-        rogue = new Rogue("TestRogue", 100, 20, 10, 10, board);
+        rogue = new Rogue("TestRogue", 100, 20, 10, 10);
     }
 
     @Test
