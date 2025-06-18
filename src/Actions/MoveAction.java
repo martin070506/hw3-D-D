@@ -37,25 +37,30 @@ public class MoveAction implements UnitVisitor {
     {
         if(player.isLegalMove(directionKey))
         {
-            int currentX=player.getPlayerX();
-            int currentY=player.getPlayerY();
+            int originalX=player.getPlayerX();
+            int originalY=player.getPlayerY();
             GameTile[][] boardMatrix=this.gameBoard.GetBoard();
-            boardMatrix[currentY][currentX]=new GameTile('.',null,currentX,currentY);
+            boardMatrix[originalY][originalX]=new GameTile('.',null,originalX,originalY);
             switch (directionKey) {
                 case 'w':
-                    player.setPlayerLocation(new Point(currentX,currentY-1));
+                    player.setPlayerLocation(new Point(originalX,originalY-1));
+                    boardMatrix[originalY-1][originalX]=new GameTile('@',player,originalX,originalY-1);
+
                     //Handle if player stepped on a unit and create a new Attack Action
                     break;
                 case 'a':
-                    player.setPlayerLocation(new Point(currentX-1,currentY));
+                    player.setPlayerLocation(new Point(originalX-1,originalY));
+                    boardMatrix[originalY][originalX-1]=new GameTile('@',player,originalX-1,originalY);
                     //Handle if player stepped on a unit and create a new Attack Action
                     break;
                 case 's':
-                    player.setPlayerLocation(new Point(currentX,currentY+1));
+                    player.setPlayerLocation(new Point(originalX,originalY+1));
+                    boardMatrix[originalY+1][originalX]=new GameTile('@',player,originalX,originalY+1);
                     //Handle if player stepped on a unit and create a new Attack Action
                     break;
                 case 'd':
-                    player.setPlayerLocation(new Point(currentX+1,currentY));
+                    player.setPlayerLocation(new Point(originalX+1,originalY));
+                    boardMatrix[originalY][originalX+1]=new GameTile('@',player,originalX+1,originalY);
                     //Handle if player stepped on a unit and create a new Attack Action
                     break;
             }
