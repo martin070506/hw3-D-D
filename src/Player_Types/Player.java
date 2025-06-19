@@ -12,7 +12,7 @@ public abstract class Player extends Unit {
     private Point playerLocation;
     private int experience;
     private int playerLevel;
-    private GameBoard gameBoard;
+
 
     public Player(String name, int maxHealth, int attack, int defense)
     {
@@ -21,36 +21,9 @@ public abstract class Player extends Unit {
         this.playerLevel=1;
         // arguments Like Range will be received in the specific PlayerTypes classes e.g:"mage"
     }
-    private Point getPlayerLocationFromBoard(GameBoard board)
-    {
-        return board.getPlayerPosition();
-    }
     public abstract void accept(UnitVisitor unitVisitor);
 
-    public boolean isLegalMove(char directionKey)
-    {
-        int currentX=playerLocation.getX();
-        int currentY=playerLocation.getY();
-        GameTile[][] board=this.gameBoard.GetBoard();
-        int legalX=this.gameBoard.GetBoard()[0].length-1;
-        int legalY=this.gameBoard.GetBoard().length-1;
 
-        switch (directionKey) {
-            case 'w':
-                if(playerLocation.getY()<=0||board[currentY-1][currentX].getType()=='#') return false;
-                break;
-            case 'a':
-                if(playerLocation.getX()<=0||board[currentY][currentX-1].getType()=='#') return false;
-                break;
-            case 's':
-                if(playerLocation.getY()>=legalY||board[currentY+1][currentX].getType()=='#') return false;
-                break;
-            case 'd':
-                if(playerLocation.getX()>=legalX||board[currentY][currentX+1].getType()=='#') return false;
-                break;
-        }
-        return true;
-    }
 
 
 
@@ -90,12 +63,6 @@ public abstract class Player extends Unit {
         this.playerLevel = playerLevel;
     }
 
-    public GameBoard getPlayerBoard() {
-        return gameBoard;
-    }
 
-    public void setPlayerBoard(GameBoard playerBoard) {
-        this.gameBoard = playerBoard;
-    }
 
 }

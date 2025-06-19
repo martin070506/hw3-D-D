@@ -5,14 +5,18 @@ import Unit_Logic.UnitVisitor;
 
 public class Warrior extends Player
 {
+    private int abilityCooldown;
+    private int remainingCooldown;
 
     @Override
     public void accept(UnitVisitor unitVisitor) {
-
+        unitVisitor.visitWarrior(this);
     }
-    public Warrior()
+    public Warrior(String name, int maxHealth, int attack, int defense,int abilityCooldown)
     {
-        super("jadkakjdk",7,8,9);
+        super(name,maxHealth,attack,defense);
+        this.abilityCooldown=abilityCooldown;
 
     }
+    //Todo handle remaining cooldown (idea: a tick is in move action, so inside visit warrior i will handle it)
 }

@@ -1,4 +1,5 @@
 package BoardLogic;
+import Actions.MoveAction;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Mage;
@@ -16,16 +17,28 @@ import java.util.Set;
 public class GameBoard {
     /// Fields
     private GameTile[][] board;
-    private Point playerPosition;
     private Player player;
+    private int enemyCount;
 
 
 
     /// Constructors
+    /// default constructor where player is selected for first Time
+    /// it build the board and selects Player
     public GameBoard(String TXTFilePath) throws IOException {
+        this.enemyCount=0;
         Player chosenPlayer=choosePlayer();
+        this.player=chosenPlayer;
         this.board =BuildBoard(TXTFilePath,chosenPlayer);
-        chosenPlayer.setPlayerBoard(this);
+
+    }
+    /// constructor for if player is already available,for example passing a level stays with the same Player
+    /// so the constructor builds a new board with a predefined player
+    public GameBoard(String TXTFilePath,Player player) throws IOException
+    {
+        this.enemyCount=0;
+        this.player=player;
+        this.board=BuildBoard(TXTFilePath,player);
     }
 
     public GameBoard(Player player, int length, int width) {
@@ -35,7 +48,8 @@ public class GameBoard {
             for (int j = 0; j < width; j++)
                 board[i][j] = new GameTile('.', null, new Point(i,j));
 
-        playerPosition = player.getPlayerLocation(); // TODO Delete this line
+
+
     }
 
 
@@ -69,10 +83,10 @@ public class GameBoard {
                     {
                         newBoard[currentYPos][currentXPos]=new GameTile(type,player,new Point(currentXPos, currentYPos));
                         player.setPlayerLocation(new Point(currentXPos,currentYPos));
-                        this.playerPosition=new Point(currentXPos,currentYPos);
                     }
                     else
                     {
+                        if(chooseUnitByType(type)!=null) this.enemyCount+=1;
                         newBoard[currentYPos][currentXPos] = new GameTile(type, chooseUnitByType(type), new Point(currentXPos, currentYPos));
                     }
 
@@ -87,20 +101,43 @@ public class GameBoard {
 
 
     public void nextTick(){
-        // TODO Need to implement Player move
+        ///Simulates a tick by getting the players action to move the player
+        /// this method also updates the board
+        player.accept(new MoveAction(getDirectionInput(),this));
         GameBoard newGameBoard = temporaryGameBoard(this);
         for (int i = 0; i < getLength(); i++)
             for (int j = 0; j < getWidth(); j++)
                 if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType()))
                     // TODO Need to implement Enemy move
+                    //TODO remember to go by enemies through old board(already done)
+                    // and dont forget to check if the move is legal by the new Board(where maybe some of the enemies already moved while we're in the loop)
                     ;
 
-        board = newGameBoard.board;
-        playerPosition = newGameBoard.playerPosition; // TODO Delete this line
+        this.board = newGameBoard.board;
+
+    }
+    //helper method
+    private char getDirectionInput() {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        while (true) {
+            System.out.print("Enter direction (w/a/s/d): ");
+            input = scanner.nextLine().trim().toLowerCase();
+
+            if (input.length() == 1&&isLegalMove(input.charAt(0))) {
+                char c = input.charAt(0);
+                if (c == 'w' || c == 'a' || c == 's' || c == 'd') {
+                    return c;
+                }
+            }
+
+            System.out.println("Invalid input. Please enter only w, a, s, or d.");
+        }
     }
 
 
-    public GameBoard temporaryGameBoard(GameBoard gameBoard) {
+    private GameBoard temporaryGameBoard(GameBoard gameBoard) {
         GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getLength(), gameBoard.getWidth());
         for (int i = 0; i < gameBoard.getLength(); i++)
             for (int j = 0; j < gameBoard.getWidth(); j++)
@@ -111,46 +148,62 @@ public class GameBoard {
     }
 
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (GameTile[] row : board) {
-            for (GameTile tile : row) {
 
-                sb.append(tile.getType());
 
-            }
-            sb.append('\n');
+    public boolean isLegalMove(char directionKey)
+    {
+        int currentX=player.getPlayerX();
+        int currentY=player.getPlayerY();
+
+        GameTile[][] board=this.GetBoard();
+        int legalX=this.GetBoard()[0].length-1;
+        int legalY=this.GetBoard().length-1;
+
+        switch (directionKey) {
+            case 'w':
+                if(currentY<=0||board[currentY-1][currentX].getType()=='#') return false;
+                break;
+            case 'a':
+                if(currentX<=0||board[currentY][currentX-1].getType()=='#') return false;
+                break;
+            case 's':
+
+                if(currentY>=legalY||board[currentY+1][currentX].getType()=='#') return false;
+                break;
+            case 'd':
+                if(currentX>=legalX||board[currentY][currentX+1].getType()=='#') return false;
+                break;
+            default: return  false;
         }
-        return sb.toString();
-    }
 
-    public void setPlayerPosition(Point position)
+        return true;
+    }
+    public boolean isLegalMoveAndUnitThere(char directionKey)
     {
-       int currentX=playerPosition.getX();
-       int currentY=playerPosition.getY();
-        this.playerPosition=position;
-      GameTile[][] gameBoard=this.GetBoard();
-      gameBoard[currentY][currentX]=new GameTile('.',null, new Point(currentX, currentY));
-      gameBoard[position.getY()][position.getX()]=new GameTile('@',this.player, position);
-    }
-    public Point getPlayerPosition()
-    {
-        return this.playerPosition;
+        int currentX=player.getPlayerX();
+        int currentY=player.getPlayerY();
+
+        GameTile[][] board=this.GetBoard();
+        if(!isLegalMove(directionKey))return false;
+        switch (directionKey) {
+            case 'w':
+                if(board[currentY-1][currentX].isUnit()) return true;
+                break;
+            case 'a':
+                if(board[currentY][currentX-1].isUnit()) return true;
+                break;
+            case 's':
+                if(board[currentY+1][currentX].isUnit()) return true;
+                break;
+            case 'd':
+                if(board[currentY][currentX+1].isUnit()) return true;
+                break;
+        }
+        return false;
     }
 
-    public GameTile[][] GetBoard()
-    {
-        return this.board;
-    }
 
-    public int getLength(){
-        return this.board.length;
-    }
 
-    public int getWidth(){
-        return this.board[0].length;
-    }
 
     private Unit chooseUnitByType(char type){
         return switch (type) {
@@ -201,18 +254,45 @@ public class GameBoard {
         };
     }
 
-    //Only a method for Tests*****************************************
-    public GameBoard(String TXTFilePath, Player chosenPlayer) throws IOException {
-        this.board = BuildBoard(TXTFilePath, chosenPlayer);
-        this.playerPosition = chosenPlayer.getPlayerLocation();
-        chosenPlayer.setPlayerBoard(this);
+
+    public GameTile[][] GetBoard()
+    {
+        return this.board;
     }
-    //Only a method for testing
+
+    public int getLength(){
+        return this.board.length;
+    }
+
+    public int getWidth(){
+        return this.board[0].length;
+    }
+    public Player getPlayer()
+    {
+        return this.player;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (GameTile[] row : board) {
+            for (GameTile tile : row) {
+
+                sb.append(tile.getType());
+
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+
+
     public static Player choosePlayer(String input)
     {
         return switch (input) {
-            case "1" -> new Warrior();
-            case "2" -> new Warrior();
+            case "1" -> new Warrior("Jon snow",300,30,3,3);
+            case "2" -> new Warrior("The Hound",400,20,6,5);
             case "3" -> new Mage("Melisandre", 100,5,1,300,30,15,5,6);
             case "4" -> new Mage("Thoros of Myr", 250, 25, 4, 150, 20, 20, 3, 4 );
             case "5" -> new Rogue("Arya Stark", 150, 40, 2, 20);

@@ -40,7 +40,7 @@ public class GameBoardTest {
         assertEquals(3, tiles.length);         // Height
         assertEquals(3, tiles[0].length);      // Width
 
-        Point playerPos = board.getPlayerPosition();
+        Point playerPos = board.getPlayer().getPlayerLocation();
         assertNotNull(playerPos);
         assertEquals(0, playerPos.getX());
         assertEquals(0, playerPos.getY());
@@ -59,23 +59,30 @@ public class GameBoardTest {
                         "###\n" +
                         "...\n";
 
-        assertEquals(expected, board.toString());
+        assertEquals(expected,board.toString());
     }
 
     @Test
-    public void testSetPlayerPosition() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(),choosePlayer("5"));
+    public void testIsLegalMove() throws IOException {
+        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
 
-        Point newPos = new Point(2, 2);
-        board.setPlayerPosition(newPos);
+        assertFalse(board.isLegalMove('a')); // left of (0,0) is out of bounds
+        assertFalse(board.isLegalMove('s')); // down to (1,0) is wall '#'
+        assertTrue(board.isLegalMove('d'));  // right to (0,1) is '.'
+    }
 
-        assertEquals(2, board.getPlayerPosition().getX());
-        assertEquals(2, board.getPlayerPosition().getY());
+    @Test
+    public void testIsLegalMoveAndUnitThere() throws IOException {
+        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
 
-        GameTile newTile = board.GetBoard()[2][2];
-        assertEquals('@', newTile.getType());
+        assertFalse(board.isLegalMoveAndUnitThere('d')); // No unit to the right
+        assertFalse(board.isLegalMoveAndUnitThere('s')); // Wall below
+    }
 
-        GameTile oldTile = board.GetBoard()[0][0];
-        assertEquals('.', oldTile.getType());
+    @Test
+    public void testPlayerReferencePreserved() throws IOException {
+        Player player = choosePlayer("5");
+        GameBoard board = new GameBoard(tempFile.toString(), player);
+        assertSame(player, board.getPlayer());
     }
 }

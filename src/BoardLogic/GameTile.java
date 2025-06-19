@@ -38,6 +38,11 @@ public class GameTile {
     public void setPosition(Point position) { this.position = position; }
     public void setUnit(Unit unit) { this.unit = unit; }
 
+    public boolean isUnit()
+    {
+        return this.unit!=null;
+    }
+
 
     // HelpMethods
     public double range(Point p) { return position.distance(p); }
