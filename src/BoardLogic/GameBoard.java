@@ -11,12 +11,36 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.Set;
 
 public class GameBoard {
-    private GameTile[][] Board;
+    /// Fields
+    private GameTile[][] board;
     private Point playerPosition;
     private Player player;
 
+
+
+    /// Constructors
+    public GameBoard(String TXTFilePath) throws IOException {
+        Player chosenPlayer=choosePlayer();
+        this.board =BuildBoard(TXTFilePath,chosenPlayer);
+        chosenPlayer.setPlayerBoard(this);
+    }
+
+    public GameBoard(Player player, int length, int width) {
+        board = new GameTile[length][width];
+        this.player = player;
+        for (int i = 0; i < length; i++)
+            for (int j = 0; j < width; j++)
+                board[i][j] = new GameTile('.', null, new Point(i,j));
+
+        playerPosition = player.getPlayerLocation(); // TODO Delete this line
+    }
+
+
+
+    /// Methods
     public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException
     {
         this.player=player;
@@ -43,13 +67,13 @@ public class GameBoard {
                 {
                     if(type=='@')
                     {
-                        newBoard[currentYPos][currentXPos]=new GameTile(type,player,currentXPos,currentYPos);
+                        newBoard[currentYPos][currentXPos]=new GameTile(type,player,new Point(currentXPos, currentYPos));
                         player.setPlayerLocation(new Point(currentXPos,currentYPos));
                         this.playerPosition=new Point(currentXPos,currentYPos);
                     }
                     else
                     {
-                        newBoard[currentYPos][currentXPos] = new GameTile(type, chooseUnitByType(type), currentXPos,currentYPos);
+                        newBoard[currentYPos][currentXPos] = new GameTile(type, chooseUnitByType(type), new Point(currentXPos, currentYPos));
                     }
 
                     currentXPos++;
@@ -58,22 +82,39 @@ public class GameBoard {
 
             }
         }
-
         return newBoard;
     }
-    public GameBoard(String TXTFilePath) throws IOException {
-        Player chosenPlayer=choosePlayer();
-        this.Board=BuildBoard(TXTFilePath,chosenPlayer);
-        chosenPlayer.setPlayerBoard(this);
+
+
+    public void nextTick(){
+        // TODO Need to implement Player move
+        GameBoard newGameBoard = temporaryGameBoard(this);
+        for (int i = 0; i < getLength(); i++)
+            for (int j = 0; j < getWidth(); j++)
+                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType()))
+                    // TODO Need to implement Enemy move
+                    ;
+
+        board = newGameBoard.board;
+        playerPosition = newGameBoard.playerPosition; // TODO Delete this line
     }
 
 
+    public GameBoard temporaryGameBoard(GameBoard gameBoard) {
+        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getLength(), gameBoard.getWidth());
+        for (int i = 0; i < gameBoard.getLength(); i++)
+            for (int j = 0; j < gameBoard.getWidth(); j++)
+                if (Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
+                        newGameBoard.board[i][j] = gameBoard.board[i][j];
+
+        return newGameBoard;
+    }
 
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (GameTile[] row : Board) {
+        for (GameTile[] row : board) {
             for (GameTile tile : row) {
 
                 sb.append(tile.getType());
@@ -90,8 +131,8 @@ public class GameBoard {
        int currentY=playerPosition.getY();
         this.playerPosition=position;
       GameTile[][] gameBoard=this.GetBoard();
-      gameBoard[currentY][currentX]=new GameTile('.',null,currentX,currentY);
-      gameBoard[position.getY()][position.getX()]=new GameTile('@',this.player,position.getX(),position.getY());
+      gameBoard[currentY][currentX]=new GameTile('.',null, new Point(currentX, currentY));
+      gameBoard[position.getY()][position.getX()]=new GameTile('@',this.player, position);
     }
     public Point getPlayerPosition()
     {
@@ -100,30 +141,37 @@ public class GameBoard {
 
     public GameTile[][] GetBoard()
     {
-        return this.Board;
+        return this.board;
+    }
+
+    public int getLength(){
+        return this.board.length;
+    }
+
+    public int getWidth(){
+        return this.board[0].length;
     }
 
     private Unit chooseUnitByType(char type){
         return switch (type) {
             // Monsters
-//            case 's' -> new Monster("Lannister Solider", 3);
-//            case 'k' -> new Monster("Lannister Knight", 4);
-//            case 'q' -> new Monster("Queen's Guard", 5);
-//            case 'z' -> new Monster("Wright", 3);
-//            case 'b' -> new Monster("Bear-Wright", 4);
-//            case 'g' -> new Monster("Giant-Wright", 5);
-//            case 'w' -> new Monster("White Walker", 6);
-//            case 'M' -> new Monster("The Mountain", 6);
-//            case 'C' -> new Monster("Queen Cersei", 1);
-//            case 'K' -> new Monster("Night's King", 8);
-//
-//            // Traps
-//            case 'B' -> new Trap("Bonus Trap", 1, 5);
-//            case 'Q' -> new Trap("Queen's Trap", 3, 7);
-//            case 'D' -> new Trap("Death Trap", 1, 10);
+            case 's' -> new Monster("Lannister Solider", 3);
+            case 'k' -> new Monster("Lannister Knight", 4);
+            case 'q' -> new Monster("Queen's Guard", 5);
+            case 'z' -> new Monster("Wright", 3);
+            case 'b' -> new Monster("Bear-Wright", 4);
+            case 'g' -> new Monster("Giant-Wright", 5);
+            case 'w' -> new Monster("White Walker", 6);
+            case 'M' -> new Monster("The Mountain", 6);
+            case 'C' -> new Monster("Queen Cersei", 1);
+            case 'K' -> new Monster("Night's King", 8);
 
-            default -> null; //# means it is not a unit and either a Wall ('#') or Empty Tile ('.')
+            // Traps
+            case 'B' -> new Trap("Bonus Trap", 1, 5);
+            case 'Q' -> new Trap("Queen's Trap", 3, 7);
+            case 'D' -> new Trap("Death Trap", 1, 10);
 
+            default -> null; // Wall or Empty
         };
     }
 
@@ -155,7 +203,7 @@ public class GameBoard {
 
     //Only a method for Tests*****************************************
     public GameBoard(String TXTFilePath, Player chosenPlayer) throws IOException {
-        this.Board = BuildBoard(TXTFilePath, chosenPlayer);
+        this.board = BuildBoard(TXTFilePath, chosenPlayer);
         this.playerPosition = chosenPlayer.getPlayerLocation();
         chosenPlayer.setPlayerBoard(this);
     }

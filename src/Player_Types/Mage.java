@@ -22,7 +22,5 @@ public class Mage extends Player   {
 
     }
     @Override
-    public void accept(UnitVisitor unitVisitor) {
-        unitVisitor.visitMage(this);
-    }
+    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMage(this); }
 }

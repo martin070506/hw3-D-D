@@ -1,7 +1,7 @@
 package Unit_Logic;
 
 public class Unit {
-
+    /// Fields
     private String name;
     private int maxHealth;
     private int health;
@@ -9,6 +9,8 @@ public class Unit {
     private int defense;
 
 
+
+    /// Constructors
     public Unit(String name, int maxHealth, int attack, int defense) {
 
         this.name = name;
@@ -18,12 +20,19 @@ public class Unit {
         this.defense = defense;
     }
 
+
+
+    /// Methods
+    // Getters
     public String getName() { return name; }
     public int getMaxHealth() { return maxHealth; }
     public int getHealth() { return health; }
     public int getAttack() { return attack; }
     public int getDefense() { return defense; }
 
+
+    // Setters
+    public  void setMaxHealth(int maxHealth) { this.maxHealth = maxHealth;}
     public void setHealth(int health) {
 
         if (health > maxHealth)
@@ -32,11 +41,6 @@ public class Unit {
         this.health = health;
     }
 
-    public void setAttack(int attack)
-    {
-        this.attack=attack;
-    }
-    public void setDefense(int defense){this.defense=defense;}
-    public  void setMaxHealth(int maxHealth){this.maxHealth=maxHealth;}
-
+    public void setAttack(int attack) { this.attack = attack; }
+    public void setDefense(int defense) { this.defense = defense; }
 }
