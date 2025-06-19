@@ -31,4 +31,12 @@ public class Unit {
 
         this.health = health;
     }
+
+    public void setAttack(int attack)
+    {
+        this.attack=attack;
+    }
+    public void setDefense(int defense){this.defense=defense;}
+    public  void setMaxHealth(int maxHealth){this.maxHealth=maxHealth;}
+
 }

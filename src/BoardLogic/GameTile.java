@@ -32,6 +32,11 @@ public class GameTile {
             position.setY(y);
     }
 
+    public Unit getUnit()
+    {
+        return this.unit;
+    }
+
     public void setType(char type) { this.type = type; }
 
     public double range(Point p) { return position.distance(p); }
