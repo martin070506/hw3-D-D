@@ -1,21 +1,24 @@
 package BoardLogic;
 
 
+import Unit_Logic.Unit;
+
 public class GameTile {
 
     private char type;
     private Point position;
+    private Unit unit;
 
-
-    public GameTile(char type, int x, int y) {
+    public GameTile(char type, Unit unit, int x, int y) {
 
         this.type = type;
+        this.unit = unit;
         this.position = new Point(x, y);
     }
 
-    public GameTile(char type, Point position) {
+    public GameTile(char type, Unit unit, Point position) {
 
-        this(type, position.getX(), position.getY());
+        this(type, unit, position.getX(), position.getY());
     }
 
     public char getType() { return type; }
@@ -34,6 +37,6 @@ public class GameTile {
     public double range(Point p) { return position.distance(p); }
 
     @Override
-    public String toString() { return type + " " + position.toString(); }
+    public String toString() { return type + ""; }
 
 }

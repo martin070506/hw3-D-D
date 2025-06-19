@@ -1,4 +1,8 @@
 package BoardLogic;
+import EnemyTypes.Monster;
+import EnemyTypes.Trap;
+import Unit_Logic.Unit;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,11 +35,12 @@ public class GameBoard {
                 if(currentXPos<=48 && currentYPos<=18)
                 {
                     if(content.charAt(i)=='@')
+                        /// can you change all content.charAt(i) to char type int the start of the code ?
                     {
                         setPlayerPosition(new Point(currentXPos,currentYPos));
                     }
                     newBoard[currentYPos][currentXPos] =
-                            new GameTile(content.charAt(i), currentXPos, currentYPos);
+                            new GameTile(content.charAt(i), chooseUnitByType(content.charAt(i)), currentXPos, currentYPos);
                     currentXPos++;
 
                 }
@@ -43,8 +48,8 @@ public class GameBoard {
             }
         }
         return newBoard;
-
     }
+
     public GameBoard(String TXTFilePath) throws IOException {
         this.Board=BuildBoard(TXTFilePath);
     }
@@ -77,5 +82,26 @@ public class GameBoard {
         return this.Board;
     }
 
+    private Unit chooseUnitByType(char type){
+        return switch (type) {
+            // Monsters
+            case 's' -> new Monster("Lannister Solider", 3);
+            case 'k' -> new Monster("Lannister Knight", 4);
+            case 'q' -> new Monster("Queen's Guard", 5);
+            case 'z' -> new Monster("Wright", 3);
+            case 'b' -> new Monster("Bear-Wright", 4);
+            case 'g' -> new Monster("Giant-Wright", 5);
+            case 'w' -> new Monster("White Walker", 6);
+            case 'M' -> new Monster("The Mountain", 6);
+            case 'C' -> new Monster("Queen Cersei", 1);
+            case 'K' -> new Monster("Night's King", 8);
 
+            // Traps
+            case 'B' -> new Trap("Bonus Trap", 1, 5);
+            case 'Q' -> new Trap("Queen's Trap", 3, 7);
+            case 'D' -> new Trap("Death Trap", 1, 10);
+
+            default -> throw new IllegalArgumentException("Unknown Unit: " + type);
+        };
+    }
 }
