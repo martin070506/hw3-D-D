@@ -1,6 +1,8 @@
 package Actions;
 
 import EnemyTypes.Enemy;
+import EnemyTypes.Monster;
+import EnemyTypes.Trap;
 import Player_Types.Mage;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
@@ -23,7 +25,12 @@ public class DefendAction implements UnitVisitor {
     }
 
     @Override
-    public void visitEnemy(Enemy enemy) {
+    public void visitMonster(Monster monster) {
+
+    }
+
+    @Override
+    public void visitTrap(Trap trap) {
 
     }
 }

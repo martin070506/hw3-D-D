@@ -18,7 +18,7 @@ public class GameTileTest {
 
     @Test
     public void testTileCreationWithCoordinates() {
-        GameTile tile = new GameTile('.', null, 1, 2);
+        GameTile tile = new GameTile('.', null, new Point(1, 2));
         assertEquals('.', tile.getType());
         assertEquals(1, tile.getPosition().getX());
         assertEquals(2, tile.getPosition().getY());
@@ -37,7 +37,7 @@ public class GameTileTest {
     @Test
     public void testTileWithUnit() {
         TestUnit unit = new TestUnit();
-        GameTile tile = new GameTile('@', unit, 0, 0);
+        GameTile tile = new GameTile('@', unit, new Point(0, 0));
         assertEquals('@', tile.getType());
         assertNotNull(tile.getUnit());
         assertSame(unit, tile.getUnit());
@@ -45,7 +45,7 @@ public class GameTileTest {
 
     @Test
     public void testSetPosition() {
-        GameTile tile = new GameTile('.', null, 0, 0);
+        GameTile tile = new GameTile('.', null, new Point(0, 0));
         tile.setPosition(3, 4);
         assertEquals(3, tile.getPosition().getX());
         assertEquals(4, tile.getPosition().getY());
@@ -58,14 +58,14 @@ public class GameTileTest {
 
     @Test
     public void testRangeCalculation() {
-        GameTile tile = new GameTile('.', null, 0, 0);
+        GameTile tile = new GameTile('.', null, new Point(0, 0));
         Point p = new Point(3, 4);
         assertEquals(5.0, tile.range(p));
     }
 
     @Test
     public void testToStringOutput() {
-        GameTile tile = new GameTile('.', null, 2, 3);
+        GameTile tile = new GameTile('.', null, new Point(2, 3));
         assertEquals(".(2,3)", tile.toString().replace(" ", ""));
     }
 }
