@@ -1,12 +1,13 @@
 package Unit_Logic;
 
-public class Unit {
+public abstract class Unit {
     /// Fields
     private String name;
     private int maxHealth;
     private int health;
     private int attack;
     private int defense;
+
 
 
 
@@ -19,6 +20,7 @@ public class Unit {
         this.attack = attack;
         this.defense = defense;
     }
+
 
 
 
@@ -40,7 +42,16 @@ public class Unit {
 
         this.health = health;
     }
+    public void takeDamage(int reduce)
+    {
+        if(reduce>=0)
+        {
+            setHealth(this.health-reduce);
+            if(this.health<0) setHealth(0);
+        }
+    }
 
     public void setAttack(int attack) { this.attack = attack; }
     public void setDefense(int defense) { this.defense = defense; }
+    public abstract void accept(UnitVisitor unitVisitor);
 }
