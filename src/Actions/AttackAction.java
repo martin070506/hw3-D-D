@@ -10,7 +10,6 @@ import Player_Types.Mage;
 import Player_Types.Player;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
-import Unit_Logic.ExpirienceExtractor;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
@@ -67,7 +66,9 @@ public class AttackAction implements UnitVisitor {
 
     @Override
     public void visitTrap(Trap trap) {
-
+        //TODO handle if enemy steps on a trap
+        System.out.println("Checking");
+        /// CHECK WORKED, Code comes here if enemy steps on a trap
     }
 
     private int rollAttackDefense(int limit)

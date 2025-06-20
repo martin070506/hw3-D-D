@@ -16,10 +16,19 @@ import Unit_Logic.UnitVisitor;
 public class MoveAction implements UnitVisitor {
     private char directionKey;
     private GameBoard gameBoard;
+    private Point playerLocation,enemyLocation;
     public MoveAction(char directionKey, GameBoard board)
     {
         this.directionKey=directionKey;
         this.gameBoard=board;
+        //this builder will be called when a player moves
+    }
+    public MoveAction(Point playerLocation,Point enemyLocation,GameBoard board)
+    {
+        this.playerLocation=playerLocation;
+        this.enemyLocation=enemyLocation;
+        this.gameBoard=board;
+        //this builder will be called when an enemy Moves, so the game can calculate where the enemy should go
     }
     @Override
     public void visitWarrior(Warrior warrior) {
@@ -99,7 +108,8 @@ public class MoveAction implements UnitVisitor {
 
     @Override
     public void visitMonster(Monster monster) {
-
+        //TODO implement he movement logic here
+        //TODO also need to implement if an enemy steps on a player
     }
 
     @Override

@@ -111,6 +111,9 @@ public class GameBoard {
                     // TODO Need to implement Enemy move
                     //TODO remember to go by enemies through old board(already done)
                     // and dont forget to check if the move is legal by the new Board(where maybe some of the enemies already moved while we're in the loop)
+                    //TODO import movement here and use the newMoveAction this way:
+                    ///Unit(board[i][j].getUnit()).accept(newMoveAction(UnitLocation,PlayerLocation,Board))
+                    ///We pass both unitLoaction and PlayerLocation so the unitknows where to go, the logic should be written in MoveAction.visitMonster
                     ;
 
         this.board = newGameBoard.board;
