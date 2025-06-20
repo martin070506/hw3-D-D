@@ -40,12 +40,13 @@ public class MoveAction implements UnitVisitor {
     {
         int originalX=player.getPlayerX();
         int originalY=player.getPlayerY();
+        if(this.gameBoard==null){return;}
         GameTile[][] boardMatrix=this.gameBoard.GetBoard();
         /*
         * Creating different 2 IF Blocks to show diffrence between enemy step, and normal step
         * doing this instead of putting an if block in each switchCase
         * */
-        if(gameBoard.isLegalMove(directionKey)&&!gameBoard.isLegalMoveAndUnitThere(directionKey))
+        if(gameBoard!=null&&gameBoard.isLegalMove(directionKey)&&!gameBoard.isLegalMoveAndUnitThere(directionKey))
         {
             boardMatrix[originalY][originalX]=new GameTile('.',null,new Point(originalX, originalY));
             switch (directionKey) {
@@ -67,26 +68,26 @@ public class MoveAction implements UnitVisitor {
                     break;
             }
         }
-        if(gameBoard.isLegalMoveAndUnitThere(directionKey))
+        if(gameBoard!=null&&gameBoard.isLegalMoveAndUnitThere(directionKey))
         {
             Unit defender;
             switch (directionKey)
             {
                 case 'w':
                     defender= boardMatrix[originalY-1][originalX].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard));
+                    defender.accept(new AttackAction(player,gameBoard,'w'));
                     break;
                 case 'a':
                     defender= boardMatrix[originalY][originalX-1].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard));
+                    defender.accept(new AttackAction(player,gameBoard,'a'));
                     break;
                 case 's':
                     defender= boardMatrix[originalY+1][originalX].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard));
+                    defender.accept(new AttackAction(player,gameBoard,'s'));
                     break;
                 case 'd':
                     defender= boardMatrix[originalY][originalX+1].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard));
+                    defender.accept(new AttackAction(player,gameBoard,'d'));
                     break;
 
             }

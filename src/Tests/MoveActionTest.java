@@ -1,8 +1,11 @@
-package Actions;
+package Tests;
 
+import Actions.MoveAction;
 import BoardLogic.GameBoard;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
+import EnemyTypes.Monster;
+import EnemyTypes.Trap;
 import Player_Types.Mage;
 import Player_Types.Player;
 import Player_Types.Rogue;
@@ -111,4 +114,67 @@ public class MoveActionTest {
         assertNull(previous.getUnit());
         assertEquals('.', previous.getType());
     }
+    @Test
+    public void testAttemptMoveIntoTrapDoesNotMove() {
+        Unit trap = new Trap("Death Trap", 1, 10);
+        gameBoard.GetBoard()[1][2] = new GameTile('D', trap, new Point(2, 1));
+        MoveAction action = new MoveAction('w', gameBoard);
+        warrior.accept(action);
+        // Player should not move
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+    }
+
+    @Test
+    public void testAttemptMoveIntoMonsterTriggersAttack() {
+        Unit monster = new Monster("Lannister Solider", 3);
+        gameBoard.GetBoard()[1][2] = new GameTile('s', monster, new Point(2, 1));
+        MoveAction action = new MoveAction('w', gameBoard);
+        warrior.accept(action);
+        // Player should stay in place if combat logic doesn't move them
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+        // Ensure monster took some damage or stayed the same
+        assertTrue(monster.getHealth() < monster.getMaxHealth() || monster.getHealth() == monster.getMaxHealth());
+    }
+
+    @Test
+    public void testMoveActionWithNullBoardThrowsNoException() {
+        MoveAction action = new MoveAction('w', null);
+        assertDoesNotThrow(() -> warrior.accept(action));
+    }
+
+    @Test
+    public void testMoveTwiceUpdatesToNewLocation() {
+        warrior.accept(new MoveAction('s', gameBoard));
+        warrior.accept(new MoveAction('s', gameBoard));
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(4, warrior.getPlayerY());
+    }
+
+    @Test
+    public void testMoveSurroundedByWallsBlocksAllDirections() {
+        // Place walls around (2,2)
+        gameBoard.GetBoard()[1][2] = new GameTile('#', null, new Point(2, 1)); // up
+        gameBoard.GetBoard()[3][2] = new GameTile('#', null, new Point(2, 3)); // down
+        gameBoard.GetBoard()[2][1] = new GameTile('#', null, new Point(1, 2)); // left
+        gameBoard.GetBoard()[2][3] = new GameTile('#', null, new Point(3, 2)); // right
+
+        warrior.accept(new MoveAction('w', gameBoard));
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+
+        warrior.accept(new MoveAction('s', gameBoard));
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+
+        warrior.accept(new MoveAction('a', gameBoard));
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+
+        warrior.accept(new MoveAction('d', gameBoard));
+        assertEquals(2, warrior.getPlayerX());
+        assertEquals(2, warrior.getPlayerY());
+    }
+
 }

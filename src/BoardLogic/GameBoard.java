@@ -86,7 +86,7 @@ public class GameBoard {
                     }
                     else
                     {
-                        if(chooseUnitByType(type)!=null) this.enemyCount+=1;
+                        if(chooseUnitByType(type)!=null && !Set.of('B','Q','D').contains(type)) this.enemyCount+=1;
                         newBoard[currentYPos][currentXPos] = new GameTile(type, chooseUnitByType(type), new Point(currentXPos, currentYPos));
                     }
 
@@ -257,6 +257,7 @@ public class GameBoard {
 
     public GameTile[][] GetBoard()
     {
+
         return this.board;
     }
 
@@ -271,6 +272,11 @@ public class GameBoard {
     {
         return this.player;
     }
+    public void setEnemyCount(int enemyCount)
+    {
+        this.enemyCount=enemyCount;
+    }
+    public int getEnemyCount(){return this.enemyCount;}
 
     @Override
     public String toString() {
