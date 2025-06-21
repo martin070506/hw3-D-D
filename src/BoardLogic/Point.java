@@ -30,6 +30,10 @@ public class Point {
     public double distance(Point p) {
         return Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2));
     }
+    public boolean equals(Point p)
+    {
+        return (this.x==p.x & y==p.y);
+    }
 
 
     // ToString
