@@ -176,5 +176,69 @@ public class MoveActionTest {
         assertEquals(2, warrior.getPlayerX());
         assertEquals(2, warrior.getPlayerY());
     }
+    @Test
+    public void testMonsterMovesRandomlyWhenOutOfRange() {
+        Player dummyPlayer = GameBoard.choosePlayer("1");
+        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+        dummyPlayer.setPlayerLocation(new Point(4, 4));
+        enemyBoard.GetBoard()[4][4] = new GameTile('@', dummyPlayer, new Point(4, 4));
+
+        Point monsterStart = new Point(1, 1);
+        Unit monster = GameBoard.chooseUnitByType('s');
+        enemyBoard.GetBoard()[1][1] = new GameTile('s', monster, monsterStart);
+        System.out.println(enemyBoard);
+
+        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+        monster.accept(monsterAction);
+
+        boolean hasMoved = false;
+        for (int y = 0; y < 5 && !hasMoved; y++) {
+            for (int x = 0; x < 5 && !hasMoved; x++) {
+                if (enemyBoard.GetBoard()[y][x].getUnit() == monster && !(x == 1 && y == 1)) {
+                    hasMoved = true;
+                }
+            }
+        }
+
+        assertTrue(hasMoved, "Monster should have moved randomly.");
+        ///IF the random move was 'O' then Monster doesnt have to work (basically the test works)
+    }
+
+//    @Test
+//    public void testMonsterMovesTowardPlayerWhenInRange() {
+//        Player dummyPlayer = GameBoard.choosePlayer("1");
+//        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+//        dummyPlayer.setPlayerLocation(new Point(2, 2));
+//        enemyBoard.GetBoard()[2][2] = new GameTile('@', dummyPlayer, new Point(2, 2));
+//
+//        Point monsterStart = new Point(2, 4);
+//        Unit monster = GameBoard.chooseUnitByType('s');
+//        enemyBoard.GetBoard()[4][2] = new GameTile('s', monster, monsterStart);
+//
+//        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+//        monster.accept(monsterAction);
+//
+//        assertEquals(monster, enemyBoard.GetBoard()[3][2].getUnit(), "Monster should move one tile up toward the player.");
+//    }
+//
+//    @Test
+//    public void testMonsterBlockedByWallDoesNotMove() {
+//        Player dummyPlayer = GameBoard.choosePlayer("1");
+//        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+//        dummyPlayer.setPlayerLocation(new Point(2, 2));
+//        enemyBoard.GetBoard()[2][2] = new GameTile('@', dummyPlayer, new Point(2, 2));
+//
+//        Point monsterStart = new Point(2, 4);
+//        Unit monster = GameBoard.chooseUnitByType('s');
+//        enemyBoard.GetBoard()[4][2] = new GameTile('s', monster, monsterStart);
+//
+//        // Block the movement path
+//        enemyBoard.GetBoard()[3][2] = new GameTile('#', null, new Point(2, 3));
+//
+//        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+//        monster.accept(monsterAction);
+//
+//        assertEquals(monster, enemyBoard.GetBoard()[4][2].getUnit(), "Monster should not move into a wall.");
+//    }
 
 }
