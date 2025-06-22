@@ -1,7 +1,10 @@
 package BoardLogic;
 
 
+import EnemyTypes.Trap;
 import Unit_Logic.Unit;
+
+import java.util.Set;
 
 public class GameTile {
     /// Fields
@@ -38,18 +41,16 @@ public class GameTile {
     public void setPosition(Point position) { this.position = position; }
     public void setUnit(Unit unit) { this.unit = unit; }
 
-    public boolean isUnit()
-    {
-        return this.unit!=null;
-    }
 
-
-    // HelpMethods
+    // Other Methods
     public double range(Point p) { return position.distance(p); }
 
+    public boolean isUnit() { return unit != null; }
 
-    // toString
     @Override
-    public String toString() { return type + ""; }
+    public String toString() {
 
+        if (Set.of('B', 'Q', 'D').contains(type) && !((Trap) unit).isVisible()) // TODO override in some way
+            return ".";
+        return type + ""; }
 }
