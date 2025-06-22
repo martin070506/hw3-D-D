@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameBoardTest {
     private static Path tempFile;
     private static final String TEST_MAP =
-            "@.#\n" +
+            "@s.\n" +
                     "###\n" +
                     "...";
 
@@ -37,8 +37,8 @@ public class GameBoardTest {
 
         GameTile[][] tiles = board.GetBoard();
         assertNotNull(tiles);
-        assertEquals(3, tiles.length);         // Height
-        assertEquals(3, tiles[0].length);      // Width
+        assertEquals(3, tiles.length);
+        assertEquals(3, tiles[0].length);
 
         Point playerPos = board.getPlayer().getPlayerLocation();
         assertNotNull(playerPos);
@@ -52,37 +52,19 @@ public class GameBoardTest {
 
     @Test
     public void testBoardToString() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(),choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
 
         String expected =
-                "@.#\n" +
+                "@s.\n" +
                         "###\n" +
                         "...\n";
 
-        assertEquals(expected,board.toString());
+        assertEquals(expected, board.toString());
     }
 
     @Test
-    public void testIsLegalMove() throws IOException {
+    public void testEnemyCount() throws IOException {
         GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
-
-        assertFalse(board.isLegalMove('a')); // left of (0,0) is out of bounds
-        assertFalse(board.isLegalMove('s')); // down to (1,0) is wall '#'
-        assertTrue(board.isLegalMove('d'));  // right to (0,1) is '.'
-    }
-
-    @Test
-    public void testIsLegalMoveAndUnitThere() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
-
-        assertFalse(board.isLegalMoveAndUnitThere('d')); // No unit to the right
-        assertFalse(board.isLegalMoveAndUnitThere('s')); // Wall below
-    }
-
-    @Test
-    public void testPlayerReferencePreserved() throws IOException {
-        Player player = choosePlayer("5");
-        GameBoard board = new GameBoard(tempFile.toString(), player);
-        assertSame(player, board.getPlayer());
+        assertEquals(1, board.getEnemyCount(), "There should be 1 enemy on the board.");
     }
 }

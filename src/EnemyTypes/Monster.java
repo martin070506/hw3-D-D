@@ -23,6 +23,7 @@ public class Monster extends Enemy {
     /// Methods
     // Getters
     public int getVisionRange() { return visionRange; }
+    public void setVisionRange(int visionRange){this.visionRange=visionRange;}
 
 
     // Abstract Methods
