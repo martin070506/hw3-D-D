@@ -106,19 +106,11 @@ public class GameBoard {
         for (int i = 0; i < getHeight(); i++)
             for (int j = 0; j < getWidth(); j++)
                 if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType()))
-                {
-                    board[i][j].getUnit().accept(new MoveAction(player,board[j][i].getPosition(),board[j][i].getType(),newGameBoard));
-                }
-                    // TODO Need to implement Enemy move
-                    // TODO remember to go by enemies through old board(already done)
-                    // and dont forget to check if the move is legal by the new Board(where maybe some of the enemies already moved while we're in the loop)
-                    // TODO import movement here and use the newMoveAction this way:
-                    // Unit(board[i][j].getUnit()).accept(newMoveAction(UnitLocation,PlayerLocation,Board))
-                    // We pass both unitLoaction and PlayerLocation so the unitknows where to go, the logic should be written in MoveAction.visitMonster
+                    board[i][j].getUnit().accept(new MoveAction(player, new Point(i, j), board[j][i].getType(), this, newGameBoard));
 
         this.board = newGameBoard.board;
-
     }
+
     //helper method
     private char getDirectionInput() {
         Scanner scanner = new Scanner(System.in);
@@ -256,6 +248,7 @@ public class GameBoard {
             }
         };
     }
+
 
 
     public GameTile[][] getBoard()

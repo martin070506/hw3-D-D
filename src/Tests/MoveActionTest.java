@@ -185,7 +185,7 @@ public class MoveActionTest {
         enemyBoard.getBoard()[1][1] = new GameTile('s', monster, monsterStart);
         System.out.println(enemyBoard);
 
-        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
         monster.accept(monsterAction);
 
         boolean hasMoved = false;
@@ -212,7 +212,7 @@ public class MoveActionTest {
         Unit monster = GameBoard.chooseUnitByType('s');
         enemyBoard.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
 
-        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
         monster.accept(monsterAction);
 
         assertEquals(monster, enemyBoard.getBoard()[2][3].getUnit(), "Monster should move one tile up toward the player.");
@@ -232,7 +232,7 @@ public class MoveActionTest {
         // Block the movement path
         enemyBoard.getBoard()[3][2] = new GameTile('#', null, new Point(2, 3));
 
-        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard);
+        MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
         monster.accept(monsterAction);
 
         assertEquals(monster, enemyBoard.getBoard()[4][2].getUnit(), "Monster should not move into a wall.");
@@ -250,7 +250,7 @@ public class MoveActionTest {
         board.getBoard()[4][2] = new GameTile('#', null, new Point(2, 3));
         board.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
 
-        MoveAction action = new MoveAction(player, monsterStart, 's', board);
+        MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
         monster.accept(action);
 
         assertEquals(monster, board.getBoard()[4][2].getUnit(), "Monster shouldn't move into wall.");
@@ -268,7 +268,7 @@ public class MoveActionTest {
         Point monsterStart = new Point(2, 3);
         board.getBoard()[3][2] = new GameTile('K', monster, monsterStart);
 
-        MoveAction action = new MoveAction(player, monsterStart, 's', board);
+        MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
         monster.accept(action);
 
         assertTrue(player.getHealth() < player.getMaxHealth(), "Player should take damage from monster attack.");
@@ -285,7 +285,7 @@ public class MoveActionTest {
         Point trapPos = new Point(3, 2);
         board.getBoard()[2][3] = new GameTile('D', trap, trapPos);
 
-        MoveAction trapAction = new MoveAction(player, trapPos, 'D', board);
+        MoveAction trapAction = new MoveAction(player, trapPos, 'D', board, board);
         trap.accept(trapAction);
 
         assertTrue(player.getHealth() < player.getMaxHealth(), "Trap should damage player.");
@@ -302,7 +302,7 @@ public class MoveActionTest {
         Point trapPos = new Point(4, 4);
         board.getBoard()[4][4] = new GameTile('D', trap, trapPos);
 
-        MoveAction action = new MoveAction(player, trapPos, 'D', board);
+        MoveAction action = new MoveAction(player, trapPos, 'D', board, board);
         trap.accept(action);
 
         assertEquals(player.getHealth(), player.getMaxHealth(), "Trap should not damage player if too far.");
@@ -318,7 +318,7 @@ public class MoveActionTest {
         Point monsterStart = new Point(2, 4);
         board.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
 
-        MoveAction action = new MoveAction(player, monsterStart, 's', board);
+        MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
         monster.accept(action);
 
         assertEquals(monster, board.getBoard()[2][3].getUnit(), "Monster should move toward the player.");
@@ -333,7 +333,7 @@ public class MoveActionTest {
         GameBoard board = new GameBoard(player, 5, 5);
 
         Point trapPos = new Point(1, 1);
-        MoveAction action = new MoveAction(player, trapPos, 'D', board);
+        MoveAction action = new MoveAction(player, trapPos, 'D', board, board);
         int oldTick = trap.getTicks();
 
         trap.accept(action);
@@ -353,7 +353,7 @@ public class MoveActionTest {
         board.getBoard()[3][3] = new GameTile('D', trap, trapPos);
 
         int initialHealth = player.getHealth();
-        trap.accept(new MoveAction(player, trapPos, 'D', board));
+        trap.accept(new MoveAction(player, trapPos, 'D', board, board));
 
         assertTrue(player.getHealth() < initialHealth);
     }
@@ -370,7 +370,7 @@ public class MoveActionTest {
         board.getBoard()[2][1] = new GameTile('#', null, new Point(1, 2)); // Wall blocking
         board.getBoard()[2][1] = new GameTile('s', monster, start);
 
-        MoveAction action = new MoveAction(player, start, 's', board);
+        MoveAction action = new MoveAction(player, start, 's', board, board);
         monster.accept(action);
 
         assertEquals(monster, board.getBoard()[2][1].getUnit(), "Monster should not move into a wall.");
@@ -385,7 +385,7 @@ public class MoveActionTest {
         Trap trap = new Trap("Death Trap", 1, 10);
         Point trapPos = new Point(4, 4);
 
-        assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board)));
+        assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board, board)));
     }
 
 

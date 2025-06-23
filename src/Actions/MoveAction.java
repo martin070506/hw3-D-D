@@ -16,22 +16,24 @@ import java.util.Set;
 
 public class MoveAction implements UnitVisitor {
     private char directionKey;
-    private GameBoard gameBoard;
+    private final GameBoard originalGameBoard;
+    private GameBoard newGameBoard;
     private Point enemyLocation;
     private Player player;
     private char enemyType;
     public MoveAction(char directionKey, GameBoard board)
     {
         this.directionKey=directionKey;
-        this.gameBoard=board;
+        this.originalGameBoard =board;
         //this builder will be called when a player moves
     }
-    public MoveAction(Player player, Point enemyLocation, char enemyType, GameBoard board)
+    public MoveAction(Player player, Point enemyLocation, char enemyType, GameBoard originalGameBoard, GameBoard newGameBoard)
     {
         this.enemyType = enemyType;
-        this.player=player;
-        this.enemyLocation=enemyLocation;
-        this.gameBoard=board;
+        this.player = player;
+        this.enemyLocation = enemyLocation;
+        this.originalGameBoard = originalGameBoard;
+        this.newGameBoard = newGameBoard;
         //this builder will be called when an enemy Moves, so the game can calculate where the enemy should go
     }
     @Override
@@ -54,13 +56,13 @@ public class MoveAction implements UnitVisitor {
     {
         int originalX = player.getLocation().getX();
         int originalY = player.getLocation().getY();
-        if(this.gameBoard==null){return;}
-        GameTile[][] boardMatrix=this.gameBoard.getBoard();
+        if(this.originalGameBoard ==null){return;}
+        GameTile[][] boardMatrix=this.originalGameBoard.getBoard();
         /*
         * Creating different 2 IF Blocks to show diffrence between enemy step, and normal step
         * doing this instead of putting an if block in each switchCase
         * */
-        if(gameBoard!=null&&gameBoard.isLegalMove(directionKey)&&!gameBoard.isLegalMoveAndUnitThere(directionKey))
+        if(originalGameBoard !=null&& originalGameBoard.isLegalMove(directionKey)&&!originalGameBoard.isLegalMoveAndUnitThere(directionKey))
         {
             boardMatrix[originalY][originalX]=new GameTile('.',null,new Point(originalX, originalY));
             switch (directionKey) {
@@ -82,26 +84,26 @@ public class MoveAction implements UnitVisitor {
                     break;
             }
         }
-        if(gameBoard!=null&&gameBoard.isLegalMoveAndUnitThere(directionKey))
+        if(originalGameBoard !=null&& originalGameBoard.isLegalMoveAndUnitThere(directionKey))
         {
             Unit defender;
             switch (directionKey)
             {
                 case 'w':
                     defender= boardMatrix[originalY-1][originalX].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard,'w'));
+                    defender.accept(new AttackAction(player, originalGameBoard,'w'));
                     break;
                 case 'a':
                     defender= boardMatrix[originalY][originalX-1].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard,'a'));
+                    defender.accept(new AttackAction(player, originalGameBoard,'a'));
                     break;
                 case 's':
                     defender= boardMatrix[originalY+1][originalX].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard,'s'));
+                    defender.accept(new AttackAction(player, originalGameBoard,'s'));
                     break;
                 case 'd':
                     defender= boardMatrix[originalY][originalX+1].getUnit();
-                    defender.accept(new AttackAction(player,gameBoard,'d'));
+                    defender.accept(new AttackAction(player, originalGameBoard,'d'));
                     break;
 
             }
@@ -158,7 +160,6 @@ public class MoveAction implements UnitVisitor {
     }
 
     private void moveRandom(Monster monster) {
-        GameTile[][] board = gameBoard.getBoard();
         int moveX = 0;
         int moveY = 0;
         switch ((int) (Math.random() * 4)) {
@@ -186,21 +187,22 @@ public class MoveAction implements UnitVisitor {
             return;
         }
 
-        gameBoard.getBoard()[destination.getX()][destination.getY()] = new GameTile(enemyType, monster,
+        newGameBoard.getBoard()[destination.getX()][destination.getY()] = new GameTile(enemyType, monster,
                 new Point(destination.getX(), destination.getY()));
-        gameBoard.getBoard()[enemyLocation.getX()][enemyLocation.getY()] = new GameTile('.', null,
+        newGameBoard.getBoard()[enemyLocation.getX()][enemyLocation.getY()] = new GameTile('.', null,
                 new Point(enemyLocation.getX(), enemyLocation.getY()));
     }
 
     private boolean isLegalMonsterMove(Point monsterLocation)
     {
-        if (monsterLocation.getX() >= gameBoard.getWidth() ||
+        if (monsterLocation.getX() >= originalGameBoard.getWidth() ||
                 monsterLocation.getX() < 0 ||
-                monsterLocation.getY() >= gameBoard.getHeight() ||
+                monsterLocation.getY() >= originalGameBoard.getHeight() ||
                 monsterLocation.getY() < 0)
             return false;
 
-        if (!Set.of('.','@').contains(gameBoard.getBoard()[monsterLocation.getY()][monsterLocation.getX()].getType()))
+        if (!Set.of('.','@').contains(originalGameBoard.getBoard()[monsterLocation.getY()][monsterLocation.getX()].getType()) &&
+                !Set.of('.','@').contains(newGameBoard.getBoard()[monsterLocation.getY()][monsterLocation.getX()].getType()))
             return false;
 
         return true;
