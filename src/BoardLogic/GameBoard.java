@@ -23,8 +23,8 @@ public class GameBoard {
 
 
     /// Constructors
-    /// default constructor where player is selected for first Time
-    /// it build the board and selects Player
+    // default constructor where player is selected for first Time
+    // it build the board and selects Player
     public GameBoard(String TXTFilePath) throws IOException {
         this.enemyCount=0;
         Player chosenPlayer=choosePlayer();
@@ -32,8 +32,9 @@ public class GameBoard {
         this.board =BuildBoard(TXTFilePath,chosenPlayer);
 
     }
-    /// constructor for if player is already available,for example passing a level stays with the same Player
-    /// so the constructor builds a new board with a predefined player
+
+    // constructor for if player is already available,for example passing a level stays with the same Player
+    // so the constructor builds a new board with a predefined player
     public GameBoard(String TXTFilePath,Player player) throws IOException
     {
         this.enemyCount=0;
@@ -47,9 +48,6 @@ public class GameBoard {
         for (int i = 0; i < length; i++)
             for (int j = 0; j < width; j++)
                 board[i][j] = new GameTile('.', null, new Point(i,j));
-
-
-
     }
 
 
@@ -82,7 +80,7 @@ public class GameBoard {
                     if(type=='@')
                     {
                         newBoard[currentYPos][currentXPos]=new GameTile(type,player,new Point(currentXPos, currentYPos));
-                        player.setPlayerLocation(new Point(currentXPos,currentYPos));
+                        player.setLocation(new Point(currentXPos,currentYPos));
                     }
                     else
                     {
@@ -101,26 +99,18 @@ public class GameBoard {
 
 
     public void nextTick(){
-        ///Simulates a tick by getting the players action to move the player
-        /// this method also updates the board
-        player.accept(new MoveAction(getDirectionInput(),this));
+        // Simulates a tick by getting the players action to move the player
+        // this method also updates the board
+        player.accept(new MoveAction(getDirectionInput(), this));
         GameBoard newGameBoard = temporaryGameBoard(this);
-        for (int i = 0; i < getLength(); i++)
+        for (int i = 0; i < getHeight(); i++)
             for (int j = 0; j < getWidth(); j++)
                 if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType()))
-                {
-                    board[i][j].getUnit().accept(new MoveAction(player,board[j][i].getPosition(),board[j][i].getType(),newGameBoard));
-                }
-                    // TODO Need to implement Enemy move
-                    //TODO remember to go by enemies through old board(already done)
-                    // and dont forget to check if the move is legal by the new Board(where maybe some of the enemies already moved while we're in the loop)
-                    //TODO import movement here and use the newMoveAction this way:
-                    ///Unit(board[i][j].getUnit()).accept(newMoveAction(UnitLocation,PlayerLocation,Board))
-                    ///We pass both unitLoaction and PlayerLocation so the unitknows where to go, the logic should be written in MoveAction.visitMonster
+                    board[i][j].getUnit().accept(new MoveAction(player, new Point(i, j), board[j][i].getType(), this, newGameBoard));
 
         this.board = newGameBoard.board;
-
     }
+
     //helper method
     private char getDirectionInput() {
         Scanner scanner = new Scanner(System.in);
@@ -143,8 +133,8 @@ public class GameBoard {
 
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
-        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getLength(), gameBoard.getWidth());
-        for (int i = 0; i < gameBoard.getLength(); i++)
+        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth());
+        for (int i = 0; i < gameBoard.getHeight(); i++)
             for (int j = 0; j < gameBoard.getWidth(); j++)
                 if (Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
                         newGameBoard.board[i][j] = gameBoard.board[i][j];
@@ -157,12 +147,12 @@ public class GameBoard {
 
     public boolean isLegalMove(char directionKey)
     {
-        int currentX=player.getPlayerX();
-        int currentY=player.getPlayerY();
+        int currentX=player.getLocation().getX();
+        int currentY=player.getLocation().getY();
 
-        GameTile[][] board=this.GetBoard();
-        int legalX=this.GetBoard()[0].length-1;
-        int legalY=this.GetBoard().length-1;
+        GameTile[][] board=this.getBoard();
+        int legalX=this.getBoard()[0].length-1;
+        int legalY=this.getBoard().length-1;
 
         switch (directionKey) {
             case 'w':
@@ -185,10 +175,10 @@ public class GameBoard {
     }
     public boolean isLegalMoveAndUnitThere(char directionKey)
     {
-        int currentX=player.getPlayerX();
-        int currentY=player.getPlayerY();
+        int currentX=player.getLocation().getX();
+        int currentY=player.getLocation().getY();
 
-        GameTile[][] board=this.GetBoard();
+        GameTile[][] board=this.getBoard();
         if(!isLegalMove(directionKey))return false;
         switch (directionKey) {
             case 'w':
@@ -260,13 +250,13 @@ public class GameBoard {
     }
 
 
-    public GameTile[][] GetBoard()
-    {
 
+    public GameTile[][] getBoard()
+    {
         return this.board;
     }
 
-    public int getLength(){
+    public int getHeight(){
         return this.board.length;
     }
 

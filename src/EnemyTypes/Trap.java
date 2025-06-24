@@ -7,7 +7,7 @@ public class Trap extends Enemy{
     private int visibilityTime;
     private int invisibilityTime;
     private int ticksCount;
-    private boolean invisible;
+    private boolean visible;
 
 
 
@@ -21,12 +21,15 @@ public class Trap extends Enemy{
         this.visibilityTime = visibilityTime;
         this.invisibilityTime = invisibilityTime;
         this.ticksCount = 0;
-        this.invisible = true;
+        this.visible = true;
     }
 
 
 
     /// Methods
+    // Getters
+    public int getTicks(){ return ticksCount; }
+
     // Abstract Methods
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitTrap(this); }
 
@@ -40,5 +43,15 @@ public class Trap extends Enemy{
 
             default -> throw new IllegalArgumentException("Unknown Trap: " + name);
         };
+    }
+
+    public boolean isVisible() { return visible; }
+
+    public void increaseTick() {
+        ticksCount++;
+        visible = ticksCount < visibilityTime;
+
+        if (ticksCount == visibilityTime + invisibilityTime)
+            ticksCount = 0;
     }
 }

@@ -2,7 +2,6 @@ package Tests;
 
 import Actions.AttackAction;
 import BoardLogic.GameBoard;
-import EnemyTypes.Monster;
 import Player_Types.Player;
 import Player_Types.Rogue;
 import Unit_Logic.Unit;
@@ -35,7 +34,7 @@ public class AttackActionTests {
     public void setupGame() throws IOException {
         player = new Rogue("TestRogue", 100, 50, 5, 5);
         board = new GameBoard(tempFile.toString(), player);
-        enemy = board.GetBoard()[0][1].getUnit(); // z = Wright (Monster)
+        enemy = board.getBoard()[0][1].getUnit(); // z = Wright (Monster)
     }
 
     @Test
@@ -79,10 +78,10 @@ public class AttackActionTests {
         AttackAction attackAction = new AttackAction(player, board, 'd');
         enemy.accept(attackAction);
         // player should move to enemy tile (0,1)
-        assertEquals('@', board.GetBoard()[0][1].getType());
-        assertEquals(player, board.GetBoard()[0][1].getUnit());
-        assertEquals('.', board.GetBoard()[0][0].getType());
-        assertNull(board.GetBoard()[0][0].getUnit());
+        assertEquals('@', board.getBoard()[0][1].getType());
+        assertEquals(player, board.getBoard()[0][1].getUnit());
+        assertEquals('.', board.getBoard()[0][0].getType());
+        assertNull(board.getBoard()[0][0].getUnit());
     }
 
     @Test
@@ -91,7 +90,7 @@ public class AttackActionTests {
         enemy.takeDamage(enemy.getHealth() - 1);
         AttackAction attackAction = new AttackAction(player, board, 'd');
         enemy.accept(attackAction);
-        assertEquals(2, player.getPlayerLevel());
+        assertEquals(2, player.getLevel());
         assertEquals(player.getHealth(), player.getMaxHealth());
     }
 
@@ -118,8 +117,8 @@ public class AttackActionTests {
         enemy.takeDamage(1); // Still has health
         AttackAction attackAction = new AttackAction(player, board, 'd');
         enemy.accept(attackAction);
-        assertEquals(0, player.getPlayerX());
-        assertEquals(0, player.getPlayerY());
+        assertEquals(0, player.getLocation().getX());
+        assertEquals(0, player.getLocation().getY());
     }
 
     @AfterAll
