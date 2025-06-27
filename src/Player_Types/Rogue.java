@@ -21,4 +21,38 @@ public class Rogue extends Player {
     public void accept(UnitVisitor unitVisitor) {
         unitVisitor.visitRogue(this);
     }
+
+    // Getters
+    public int getAttackRange() {
+        return attackRange;
+    }
+
+    public int getMaxEnergy() {
+        return maxEnergy;
+    }
+
+    public int getCurrentEnergy() {
+        return currentEnergy;
+    }
+
+    public int getAbilityCost() {
+        return abilityCost;
+    }
+
+   
+    public void setAttackRange(int attackRange) {
+        this.attackRange = attackRange;
+    }
+
+    public void setMaxEnergy(int maxEnergy) {
+        this.maxEnergy = maxEnergy;
+    }
+
+    public void setCurrentEnergy(int currentEnergy) {
+        this.currentEnergy = currentEnergy;
+    }
+
+    public void setAbilityCost(int abilityCost) {
+        this.abilityCost = abilityCost;
+    }
 }

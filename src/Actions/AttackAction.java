@@ -54,7 +54,7 @@ public class AttackAction implements UnitVisitor {
         int defense = rollAttackDefense(monster.getDefense());
 
         monster.takeDamage(attack - defense);
-        if (monster.getHealth() == 0)
+        if (monster.getHealth() <= 0)
             handleDeathOfEnemy(monster);
     }
 
@@ -83,14 +83,17 @@ public class AttackAction implements UnitVisitor {
     }
     private void handleDeathOfEnemy(Enemy enemy)
     {
+
         handleXP(enemy);
         handleTileClearance(enemy);
         gameBoard.setEnemyCount(gameBoard.getEnemyCount()-1);
     }
 
     private void handleXP(Enemy enemy) {
-        this.attacker.setExperience(this.attacker.getExperience() + enemy.getXP());
+
+        attacker.setExperience(attacker.getExperience() + enemy.getXP());
         if (this.attacker.getExperience() >= (50 * this.attacker.getLevel())) {
+
             this.attacker.setExperience(attacker.getExperience() - 50 * attacker.getLevel());
             this.attacker.setLevel(attacker.getLevel() + 1);
             this.attacker.setMaxHealth(attacker.getMaxHealth() + 10 * attacker.getLevel());
@@ -103,33 +106,41 @@ public class AttackAction implements UnitVisitor {
     private void handleTileClearance(Enemy enemy)
     {
         GameTile[][] boardMatrix=gameBoard.getBoard();
-        int x= attacker.getLocation().getX();
+        int x=attacker.getLocation().getX();
         int y=attacker.getLocation().getY();
-        boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
+
         switch (directionKey)
         {
             case 'w':
             {
+                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
                 boardMatrix[y-1][x]=new GameTile('@',attacker,new Point(x,y-1));
                 attacker.setLocation(new Point(x,y-1));
                 break;
             }
             case 'a':
             {
+                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
                 boardMatrix[y][x-1]=new GameTile('@',attacker,new Point(x-1,y));
                 attacker.setLocation(new Point(x-1,y));
                 break;
             }
             case 's':
             {
+                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
                 boardMatrix[y+1][x]=new GameTile('@',attacker,new Point(x,y+1));
                 attacker.setLocation(new Point(x,y+1));
                 break;
             }
             case 'd':
             {
+                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
                 boardMatrix[y][x+1]=new GameTile('@',attacker,new Point(x+1,y));
                 attacker.setLocation(new Point(x+1,y));
+                break;
+            }
+            default:
+            {
                 break;
             }
 

@@ -288,6 +288,14 @@ public class GameBoard {
         }
         return sb.toString();
     }
+    public boolean isLegalTileLocationX(int x)
+    {
+        return (x>=0 && x<board[0].length);
+    }
+    public boolean isLegalTileLocationY(int y)
+    {
+        return (y>=0 && y<board.length);
+    }
 
 
 

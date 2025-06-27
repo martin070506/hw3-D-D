@@ -38,7 +38,9 @@ public class MoveAction implements UnitVisitor {
     }
     @Override
     public void visitWarrior(Warrior warrior) {
+
         visitPlayer(warrior);
+        //TODO handle the cooldown, should be just 1 line to update it here, because in here is a game tick
     }
 
     @Override
