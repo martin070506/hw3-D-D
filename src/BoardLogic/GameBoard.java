@@ -1,5 +1,6 @@
 package BoardLogic;
 import Actions.MoveAction;
+import Actions.SpecialAttackAction;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Mage;
@@ -99,9 +100,10 @@ public class GameBoard {
 
 
     public void nextTick(){
-        // Simulates a tick by getting the players action to move the player
-        // this method also updates the board
-        player.accept(new MoveAction(getDirectionInput(), this));
+        char input =getDirectionInput();
+        if(input =='w' ||input =='a' ||input =='s' ||input =='d')  player.accept(new MoveAction(getDirectionInput(), this));
+        else if(input=='e'){player.accept(new SpecialAttackAction(this));}
+        else if(input=='q'){/*DO NOTHING*/}
         GameBoard newGameBoard = temporaryGameBoard(this);
         for (int i = 0; i < getHeight(); i++)
             for (int j = 0; j < getWidth(); j++)
@@ -117,17 +119,17 @@ public class GameBoard {
         String input;
 
         while (true) {
-            System.out.print("Enter direction (w/a/s/d): ");
+            System.out.print("Enter direction (w/a/s/d Or Special Attack 'e') (Do Nothing is 'q'): ");
             input = scanner.nextLine().trim().toLowerCase();
 
             if (input.length() == 1&&isLegalMove(input.charAt(0))) {
                 char c = input.charAt(0);
-                if (c == 'w' || c == 'a' || c == 's' || c == 'd') {
+                if (c == 'w' || c == 'a' || c == 's' || c == 'd'|| c=='q'||c=='e') {
                     return c;
                 }
             }
 
-            System.out.println("Invalid input. Please enter only w, a, s, or d.");
+            System.out.println("Invalid input. Please enter only w, a, s,d ,e or q");
         }
     }
 
