@@ -84,16 +84,59 @@ public class SpecialAttackAction implements UnitVisitor {
 
     @Override
     public void visitMage(Mage mage) {
-        //TODO IMPLEMENT
+       if(mage.getCurrentMana()>= mage.getManaCost()) MageSpecialAttack(mage);
     }
     private void MageSpecialAttack(Mage mage)
     {
-        //TODO IMPLEMENT
+        Random rnd=new Random();
+        mage.setCurrentMana(mage.getCurrentMana()- mage.getManaCost());
+        int hits=0;
+        int allowedHits=mage.getMaxSpecialAbilityHits();
+        ArrayList<GameTile> enemyList=AddEnemiesInRangeToList(mage);
+        while(hits<allowedHits&&!enemyList.isEmpty())
+        {
+            int initialLevel= mage.getLevel();
+            int rand=rnd.nextInt(enemyList.size());
+            AttackUnit(mage,enemyList.get(rand));
+            int newLevel= mage.getLevel();
+            enemyList.remove(rand);
+            if(newLevel>initialLevel) HandleLevelUpMage(mage);
+        }
     }
-    private void HandleLevelUpMage(int firstLevel,int secondLevel,Mage mage)
+    private void AttackUnit(Mage mage,GameTile defenderTile)
     {
-        //TODO IMPLEMENT
+        Unit defender= defenderTile.getUnit();
+        GameTile[][] board= gameBoard.getBoard();
+        defender.accept(new AttackAction(mage,gameBoard,'e'));
+        if(defender.getHealth()<=0)
+        {
+            board[defenderTile.getPosition().getY()][defenderTile.getPosition().getX()]=new GameTile('.',null,defenderTile.getPosition());
+        }
     }
+    private ArrayList<GameTile> AddEnemiesInRangeToList(Mage mage)
+    {
+        GameTile[][] board= gameBoard.getBoard();
+        ArrayList<GameTile> enemyList=new ArrayList<>();
+        for (int y = playerLocation.getY() - mage.getAttackRange(); y <= playerLocation.getY() + mage.getAttackRange(); y++)
+        {
+            for (int x = playerLocation.getX() -  mage.getAttackRange(); x <= playerLocation.getX() +  mage.getAttackRange(); x++)
+            {
+                if (gameBoard.isLegalTileLocationY(y) && gameBoard.isLegalTileLocationX(x) && board[y][x].getUnit() != null &&( x != playerLocation.getX() || y != playerLocation.getY()))
+                {
+                    if (playerLocation.distance(board[y][x].getPosition()) <= mage.getAttackRange()) {
+                        enemyList.add(board[y][x]);
+                    }
+                }
+            }
+        }
+        return enemyList;
+    }
+    private void HandleLevelUpMage(Mage mage)
+    {
+        mage.setManaPool(mage.getManaPool()+(25* mage.getLevel()));
+        mage.setCurrentMana(Math.min((int)(mage.getCurrentMana()+(mage.getManaPool()/4)), mage.getManaPool()));
+    }
+
 
 
     @Override
