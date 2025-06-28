@@ -72,7 +72,6 @@ public class AttackAction implements UnitVisitor {
     private void visitPlayer(Player player){
         int attack = rollAttackDefense(enemyAttacker.getAttack());
         int defense = rollAttackDefense(player.getDefense());
-
         player.takeDamage(attack - defense);
         // if (player.getHealth() == 0) handleDeathOfPlayer(player); TODO ?
     }

@@ -38,9 +38,19 @@ public class MoveAction implements UnitVisitor {
     }
     @Override
     public void visitWarrior(Warrior warrior) {
-
+        int initialLevel=warrior.getLevel();
         visitPlayer(warrior);
-        //TODO handle the cooldown, should be just 1 line to update it here, because in here is a game tick
+        warrior.setRemainingCooldown(warrior.getRemainingCooldown()-1);
+        int newLevel= warrior.getLevel();
+        if(newLevel>initialLevel)  HandleLevelUpWarrior(warrior);
+    }
+    private void HandleLevelUpWarrior(Warrior warrior)
+    {
+        warrior.setRemainingCooldown(0);
+        warrior.setMaxHealth(warrior.getMaxHealth()+(5* warrior.getLevel()));
+        warrior.setHealth(warrior.getMaxHealth());
+        warrior.setAttack(warrior.getAttack()+(2*warrior.getAttack()));
+        warrior.setDefense(warrior.getDefense()+(2*warrior.getDefense()));
     }
 
     @Override
@@ -50,8 +60,16 @@ public class MoveAction implements UnitVisitor {
 
     @Override
     public void visitRogue(Rogue rogue) {
+        int initialLevel=rogue.getLevel();
         visitPlayer(rogue);
+        int newLevel=rogue.getLevel();
+        if(newLevel>initialLevel) HandleRogueLevelUp(rogue);
 
+    }
+    private void HandleRogueLevelUp(Rogue rogue)
+    {
+        rogue.setCurrentEnergy(100);
+        rogue.setAttack(rogue.getAttack()+(3*rogue.getLevel()));
     }
 
     private void visitPlayer(Player player)

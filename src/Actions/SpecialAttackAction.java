@@ -12,6 +12,9 @@ import Player_Types.Warrior;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class SpecialAttackAction implements UnitVisitor {
     private GameBoard gameBoard;
     private Point playerLocation;
@@ -23,15 +26,60 @@ public class SpecialAttackAction implements UnitVisitor {
 
     @Override
     public void visitWarrior(Warrior warrior) {
-        //TODO IMPLEMENT
+       if(warrior.getRemainingCooldown()==0){WarriorSpecialAttack(warrior);}
     }
     private void WarriorSpecialAttack(Warrior warrior)
     {
-        //TODO IMPLEMENT
+        GameTile[][] board= gameBoard.getBoard();
+        warrior.setRemainingCooldown(warrior.getAbilityCooldown());
+        ArrayList<GameTile> enemyList=AddEnemiesInRangeToList(warrior);
+        if(enemyList.isEmpty())
+        {
+            return;
+        }
+        GameTile tile=GetRandomTile(enemyList);
+        Unit enemyToAttack=tile.getUnit();
+        int initialLevel= warrior.getLevel();
+        enemyToAttack.accept(new AttackAction(warrior,gameBoard,'e'));
+        int newLevel= warrior.getLevel();
+        if(newLevel>initialLevel) HandleWarriorLevelUp(warrior);
+        if(enemyToAttack.getHealth()<=0)
+        {
+            board[tile.getPosition().getY()][tile.getPosition().getX()]=new GameTile('.',null,tile.getPosition());
+        }
+
     }
-    private void HandleLevelUpWarrior(int firstLevel,int secondLevel,Warrior warrior)
+    private GameTile GetRandomTile(ArrayList<GameTile> l)
     {
-        //TODO IMPLEMENT
+        Random rnd=new Random();
+        GameTile u=l.get(rnd.nextInt(l.size()));
+        return  u;
+    }
+    private ArrayList<GameTile> AddEnemiesInRangeToList(Warrior warrior)
+    {
+        GameTile[][] board= gameBoard.getBoard();
+        ArrayList<GameTile> enemyList=new ArrayList<>();
+        for (int y = playerLocation.getY() - warrior.getSpecialAttackRange(); y <= playerLocation.getY() + warrior.getSpecialAttackRange(); y++)
+        {
+            for (int x = playerLocation.getX() - warrior.getSpecialAttackRange(); x <= playerLocation.getX() + warrior.getSpecialAttackRange(); x++)
+            {
+                if (gameBoard.isLegalTileLocationY(y) && gameBoard.isLegalTileLocationX(x) && board[y][x].getUnit() != null &&( x != playerLocation.getX() || y != playerLocation.getY()))
+                {
+                    if (playerLocation.distance(board[y][x].getPosition()) <= warrior.getSpecialAttackRange()) {
+                       enemyList.add(board[y][x]);
+                    }
+                }
+            }
+        }
+        return enemyList;
+    }
+    private void HandleWarriorLevelUp(Warrior warrior)
+    {
+        warrior.setRemainingCooldown(0);
+        warrior.setMaxHealth(warrior.getMaxHealth()+(5* warrior.getLevel()));
+        warrior.setHealth(warrior.getMaxHealth());
+        warrior.setAttack(warrior.getAttack()+(2*warrior.getAttack()));
+        warrior.setDefense(warrior.getDefense()+(2*warrior.getDefense()));
     }
 
     @Override
@@ -64,13 +112,14 @@ public class SpecialAttackAction implements UnitVisitor {
                     {
                         if (playerLocation.distance(board[y][x].getPosition()) <= rogue.getAttackRange()) {
                             Unit enemy = board[y][x].getUnit();
-                            int currentLevel=rogue.getLevel();
+                            int initialLevel= rogue.getLevel();//For Handling the Rogue Specific Level Up****
                             enemy.accept(new AttackAction(rogue, gameBoard, 'e'));
-                            int newLevel=rogue.getLevel();
+                            int newLevel= rogue.getLevel();
+
                             if(enemy.getHealth()<=0)//Doing this because regular attack actions does not handle "long range" deaths
                             {
                                 board[y][x]=new GameTile('.',null,new Point(x,y));
-                                HandleLevelUpRogue(currentLevel,newLevel,rogue);
+                                if(newLevel>initialLevel) HandleLevelUpRogue(rogue);
                             }
                         }
                     }
@@ -78,13 +127,10 @@ public class SpecialAttackAction implements UnitVisitor {
             }
         }
     }
-    private void HandleLevelUpRogue(int firstLevel,int secondLevel,Rogue rogue)
+    private void HandleLevelUpRogue(Rogue rogue)
     {
-        if(secondLevel>firstLevel)
-        {
-            rogue.setCurrentEnergy(100);
-            rogue.setAttack(rogue.getAttack()+(3*rogue.getLevel()));
-        }
+        rogue.setCurrentEnergy(100);
+        rogue.setAttack(rogue.getAttack()+(3*rogue.getLevel()));
     }
 
 

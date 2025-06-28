@@ -205,16 +205,16 @@ public class GameBoard {
     public static Unit chooseUnitByType(char type){
         return switch (type) {
             // Monsters
-            case 's' -> new Monster("Lannister Solider", 3);
-            case 'k' -> new Monster("Lannister Knight", 4);
-            case 'q' -> new Monster("Queen's Guard", 5);
-            case 'z' -> new Monster("Wright", 3);
-            case 'b' -> new Monster("Bear-Wright", 4);
-            case 'g' -> new Monster("Giant-Wright", 5);
-            case 'w' -> new Monster("White Walker", 6);
-            case 'M' -> new Monster("The Mountain", 6);
-            case 'C' -> new Monster("Queen Cersei", 1);
-            case 'K' -> new Monster("Night's King", 8);
+            case 's' -> new Monster("Lannister Solider");
+            case 'k' -> new Monster("Lannister Knight");
+            case 'q' -> new Monster("Queen's Guard");
+            case 'z' -> new Monster("Wright");
+            case 'b' -> new Monster("Bear-Wright");
+            case 'g' -> new Monster("Giant-Wright");
+            case 'w' -> new Monster("White Walker");
+            case 'M' -> new Monster("The Mountain");
+            case 'C' -> new Monster("Queen Cersei");
+            case 'K' -> new Monster("Night's King");
 
             // Traps
             case 'B' -> new Trap("Bonus Trap", 1, 5);

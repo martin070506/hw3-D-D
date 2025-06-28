@@ -124,7 +124,7 @@ public class MoveActionTest {
 
     @Test
     public void testAttemptMoveIntoMonsterTriggersAttack() {
-        Unit monster = new Monster("Lannister Solider", 3);
+        Unit monster = new Monster("Lannister Solider");
         gameBoard.getBoard()[1][2] = new GameTile('s', monster, new Point(2, 1));
         MoveAction action = new MoveAction('w', gameBoard);
         warrior.accept(action);
@@ -365,7 +365,7 @@ public class MoveActionTest {
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
-        Monster monster = new Monster("Lannister Solider", 3);
+        Monster monster = new Monster("Lannister Solider");
         Point start = new Point(1, 2);
         board.getBoard()[2][1] = new GameTile('#', null, new Point(1, 2)); // Wall blocking
         board.getBoard()[2][1] = new GameTile('s', monster, start);
