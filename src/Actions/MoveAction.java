@@ -38,18 +38,44 @@ public class MoveAction implements UnitVisitor {
     }
     @Override
     public void visitWarrior(Warrior warrior) {
+        int initialLevel=warrior.getLevel();
         visitPlayer(warrior);
+        warrior.setRemainingCooldown(warrior.getRemainingCooldown()-1);
+        int newLevel= warrior.getLevel();
+        if(newLevel>initialLevel)  HandleLevelUpWarrior(warrior);
     }
-
+    private void HandleLevelUpWarrior(Warrior warrior) {
+        warrior.setRemainingCooldown(0);
+        warrior.setMaxHealth(warrior.getMaxHealth() + (5 * warrior.getLevel()));
+        warrior.setHealth(warrior.getMaxHealth());
+        warrior.setAttack(warrior.getAttack() + (2 * warrior.getAttack()));
+        warrior.setDefense(warrior.getDefense() + (2 * warrior.getDefense()));
+    }
     @Override
     public void visitMage(Mage mage) {
+        int initialLevel= mage.getLevel();
         visitPlayer(mage);
+        int newLevel=mage.getLevel();
+        if(newLevel>initialLevel) HandleLevelUpMage(mage);
+    }
+    private void HandleLevelUpMage(Mage mage)
+    {
+        mage.setManaPool(mage.getManaPool()+(25* mage.getLevel()));
+        mage.setCurrentMana(Math.min((int)(mage.getCurrentMana()+(mage.getManaPool()/4)), mage.getManaPool()));
     }
 
     @Override
     public void visitRogue(Rogue rogue) {
+        int initialLevel=rogue.getLevel();
         visitPlayer(rogue);
+        int newLevel=rogue.getLevel();
+        if(newLevel>initialLevel) HandleRogueLevelUp(rogue);
 
+    }
+    private void HandleRogueLevelUp(Rogue rogue)
+    {
+        rogue.setCurrentEnergy(100);
+        rogue.setAttack(rogue.getAttack()+(3*rogue.getLevel()));
     }
 
     private void visitPlayer(Player player)
@@ -135,7 +161,6 @@ public class MoveAction implements UnitVisitor {
 
        moveMonster(monster, new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY));
     }
-
     @Override
     public void visitTrap(Trap trap) {
         trap.increaseTick();
@@ -154,7 +179,6 @@ public class MoveAction implements UnitVisitor {
 
         return true;
     }
-
     private boolean hardRange(Monster monster) {
         return player.getLocation().distance(enemyLocation) < monster.getVisionRange();
     }

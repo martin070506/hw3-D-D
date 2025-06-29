@@ -1,5 +1,6 @@
 import Actions.MoveAction;
 import BoardLogic.GameBoard;
+import EnemyTypes.Trap;
 import Player_Types.Player;
 import Unit_Logic.Unit;
 
@@ -27,6 +28,7 @@ public class Main {
         System.out.println(board);
         p.accept(new MoveAction('a',board));
         System.out.println(board);
+        Unit t=new Trap("bulbul",12,12);
 
     }
 }
