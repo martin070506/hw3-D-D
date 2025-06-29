@@ -54,7 +54,7 @@ public class AttackAction implements UnitVisitor {
         int defense = rollAttackDefense(monster.getDefense());
 
         monster.takeDamage(attack - defense);
-        if (monster.getHealth() <= 0)
+        if (monster.getHealth() == 0) // The setHealth take care in negative values
             handleDeathOfEnemy(monster);
     }
 
