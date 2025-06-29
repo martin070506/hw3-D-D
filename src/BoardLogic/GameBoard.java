@@ -7,6 +7,7 @@ import Player_Types.Mage;
 import Player_Types.Player;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
+import UI.GameUpdateCallback;
 import Unit_Logic.Unit;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 public class GameBoard {
     /// Fields
+    private GameUpdateCallback callback;
     private GameTile[][] board;
     private Player player;
     private int enemyCount;
@@ -31,12 +33,11 @@ public class GameBoard {
         Player chosenPlayer=choosePlayer();
         this.player=chosenPlayer;
         this.board =BuildBoard(TXTFilePath,chosenPlayer);
-
     }
 
     // constructor for if player is already available,for example passing a level stays with the same Player
     // so the constructor builds a new board with a predefined player
-    public GameBoard(String TXTFilePath,Player player) throws IOException
+    public GameBoard(String TXTFilePath, Player player) throws IOException
     {
         this.enemyCount=0;
         this.player=player;
@@ -56,7 +57,6 @@ public class GameBoard {
     /// Methods
     public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException
     {
-        this.player=player;
         String content = Files.readString(Paths.get(TXTFilePath));
         int height=1;
         for(int i=0;i<content.length();i++)
@@ -99,11 +99,27 @@ public class GameBoard {
     }
 
 
-    public void nextTick(){
-        char input =getDirectionInput();
-        if(input =='w' ||input =='a' ||input =='s' ||input =='d')  player.accept(new MoveAction(getDirectionInput(), this));
-        else if(input=='e'){player.accept(new SpecialAttackAction(this));}
-        else if(input=='q'){/*DO NOTHING*/}
+    public void nextTick(String input){
+
+        if (input.length() != 1)
+            return;
+
+        switch (input.charAt(0)) {
+            case 'w':
+            case 'a':
+            case 's':
+            case 'd':
+                player.accept(new MoveAction(input.charAt(0), this));
+                break;
+            case 'e':
+                player.accept(new SpecialAttackAction(this));
+                break;
+            case 'q':
+                break;
+            default:
+                return;
+        }
+
         GameBoard newGameBoard = temporaryGameBoard(this);
         for (int i = 0; i < getHeight(); i++)
             for (int j = 0; j < getWidth(); j++)
@@ -111,28 +127,8 @@ public class GameBoard {
                     board[i][j].getUnit().accept(new MoveAction(player, new Point(i, j), board[j][i].getType(), this, newGameBoard));
 
         this.board = newGameBoard.board;
+        callback.update(toString());
     }
-
-    //helper method
-    private char getDirectionInput() {
-        Scanner scanner = new Scanner(System.in);
-        String input;
-
-        while (true) {
-            System.out.print("Enter direction (w/a/s/d Or Special Attack 'e') (Do Nothing is 'q'): ");
-            input = scanner.nextLine().trim().toLowerCase();
-
-            if (input.length() == 1&&isLegalMove(input.charAt(0))) {
-                char c = input.charAt(0);
-                if (c == 'w' || c == 'a' || c == 's' || c == 'd'|| c=='q'||c=='e') {
-                    return c;
-                }
-            }
-
-            System.out.println("Invalid input. Please enter only w, a, s,d ,e or q");
-        }
-    }
-
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
         GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth());
@@ -143,9 +139,6 @@ public class GameBoard {
 
         return newGameBoard;
     }
-
-
-
 
     public boolean isLegalMove(char directionKey)
     {
@@ -217,9 +210,9 @@ public class GameBoard {
             case 'K' -> new Monster("Night's King");
 
             // Traps
-            case 'B' -> new Trap("Bonus Trap", 1, 5);
-            case 'Q' -> new Trap("Queen's Trap", 3, 7);
-            case 'D' -> new Trap("Death Trap", 1, 10);
+            case 'B' -> new Trap("Bonus Trap");
+            case 'Q' -> new Trap("Queen's Trap");
+            case 'D' -> new Trap("Death Trap");
 
             default -> null; // Wall or Empty
         };
@@ -228,14 +221,14 @@ public class GameBoard {
     private Player choosePlayer()
     {
         Scanner s = new Scanner(System.in);
-        System.out.println("Choose a Player (1-6):");
-        System.out.println("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3");
-        System.out.println("2 - The Hound     (Warrior)     | Health: 400, Attack: 20, Defense: 6, Cooldown: 5");
-        System.out.println("3 - Melisandre    (Mage)        | Health: 100, Attack: 5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6");
-        System.out.println("4 - Thoros of Myr (Mage)        | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4");
-        System.out.println("5 - Arya Stark    (Rogue)       | Health: 150, Attack: 40, Defense: 2, Cost: 20");
-        System.out.println("6 - Bronn         (Rogue)       | Health: 250, Attack: 35, Defense: 3, Cost: 50");
-        System.out.print("Enter your choice (1-6): ");
+        callback.update("Choose a Player (1-6):\n");
+        callback.update("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
+        callback.update("2 - The Hound     (Warrior)     | Health: 400, Attack: 20, Defense: 6, Cooldown: 5\n");
+        callback.update("3 - Melisandre    (Mage)        | Health: 100, Attack: 5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6\n");
+        callback.update("4 - Thoros of Myr (Mage)        | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
+        callback.update("5 - Arya Stark    (Rogue)       | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
+        callback.update("6 - Bronn         (Rogue)       | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
+        callback.update("Enter your choice (1-6): ");
         String type=s.next();
         return switch (type) {
             case "1" -> choosePlayer("1");
@@ -245,7 +238,7 @@ public class GameBoard {
             case "5" -> choosePlayer("5");
             case "6" -> choosePlayer("6");
             default -> {
-                System.out.println("Must Enter Number Between 1 and 6");
+                callback.update("Must Enter Number Between 1 and 6\n");
                 yield choosePlayer();
             }
         };
@@ -298,7 +291,6 @@ public class GameBoard {
     }
 
 
-
     public static Player choosePlayer(String input)
     {
         return switch (input) {
@@ -311,6 +303,4 @@ public class GameBoard {
             default -> throw new IllegalArgumentException("Invalid input");
         };
     }
-
-
 }
