@@ -44,7 +44,7 @@ public abstract class Player extends Unit {
     @Override
     public void takeDamage(int damage) {
         super.takeDamage(damage);
-        if (getHealth() <= 0)
+        if (getHealth() == 0)
             callback.endGame();
     }
 

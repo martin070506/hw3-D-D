@@ -21,10 +21,8 @@ public class UserInterface implements UserInterfaceCallback {
         while (!gameOver) {
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
-            // TODO Add indicator for game complete
         }
     }
-
 
     @Override
     public void update(String message) {

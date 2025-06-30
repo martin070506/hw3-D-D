@@ -17,10 +17,8 @@ public class Warrior extends Player
     {
         super(name, maxHealth, attack, defense);
         this.abilityCooldown = abilityCooldown;
-        this.specialAttackRange = 3;
-        // Todo handle remaining cooldown (idea: a tick is in move action, so inside visit warrior i will handle it)
-        // Take in consideration that right after the creation of the unit it being printed - so
-        // remainingCooldown need to be implemented in the constructor
+        specialAttackRange = 3;
+        remainingCooldown = 0;
     }
 
 
