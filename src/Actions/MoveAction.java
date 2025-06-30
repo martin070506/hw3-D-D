@@ -213,9 +213,9 @@ public class MoveAction implements UnitVisitor {
             return;
         }
 
-        newGameBoard.getBoard()[destination.getX()][destination.getY()] = new GameTile(enemyType, monster,
+        newGameBoard.getBoard()[destination.getY()][destination.getX()] = new GameTile(enemyType, monster,
                 new Point(destination.getX(), destination.getY()));
-        newGameBoard.getBoard()[enemyLocation.getX()][enemyLocation.getY()] = new GameTile('.', null,
+        newGameBoard.getBoard()[enemyLocation.getY()][enemyLocation.getX()] = new GameTile('.', null,
                 new Point(enemyLocation.getX(), enemyLocation.getY()));
     }
 
