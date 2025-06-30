@@ -8,9 +8,9 @@ import Player_Types.Rogue;
 import Player_Types.Warrior;
 
 public interface UnitVisitor {
-    public void visitMage(Mage mage);
-    public void visitRogue(Rogue rogue);
-    public void visitWarrior(Warrior warrior);
-    public void visitMonster(Monster monster);
-    public void visitTrap(Trap trap);
+    void visitMage(Mage mage);
+    void visitRogue(Rogue rogue);
+    void visitWarrior(Warrior warrior);
+    void visitMonster(Monster monster);
+    void visitTrap(Trap trap);
 }

@@ -1,6 +1,7 @@
 package Actions;
 
 import BoardLogic.GameBoard;
+import BoardLogic.GameBoardCallback;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
 import EnemyTypes.Enemy;
@@ -10,6 +11,7 @@ import Player_Types.Mage;
 import Player_Types.Player;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
@@ -21,27 +23,26 @@ public class AttackAction implements UnitVisitor {
     private GameBoard gameBoard;
     private Unit enemyAttacker;
     private char directionKey;
+    private UserInterfaceCallback callback;
+
 
     public AttackAction(Player attacker, GameBoard gameBoard,char directionKey)
     {
-        this.attacker=attacker;
-        this.gameBoard=gameBoard;
-        this.directionKey=directionKey;
+        this.attacker = attacker;
+        this.gameBoard = gameBoard;
+        this.directionKey = directionKey;
     }
+
     public AttackAction (Enemy attacker)
     {
         this.enemyAttacker = attacker;
     }
 
     @Override
-    public void visitWarrior(Warrior warrior) {
-        visitPlayer(warrior);
-    }
+    public void visitWarrior(Warrior warrior) { visitPlayer(warrior); }
 
     @Override
-    public void visitMage(Mage mage) {
-        visitPlayer(mage);
-    }
+    public void visitMage(Mage mage) { visitPlayer(mage); }
 
     @Override
     public void visitRogue(Rogue rogue) {
@@ -49,40 +50,57 @@ public class AttackAction implements UnitVisitor {
     }
 
     @Override
-    public void visitMonster(Monster monster) {
-        int attack = rollAttackDefense(attacker.getAttack());
-        int defense = rollAttackDefense(monster.getDefense());
-
-        monster.takeDamage(attack - defense);
-        if (monster.getHealth() <= 0)
-            handleDeathOfEnemy(monster);
-    }
-
+    public void visitMonster(Monster monster) { visitEnemy(monster); }
 
     @Override
-    public void visitTrap(Trap trap) {
-        int attack = rollAttackDefense(attacker.getAttack());
-        int defense = rollAttackDefense(trap.getDefense());
-
-        trap.takeDamage(attack - defense);
-        if (trap.getHealth() == 0)
-            handleDeathOfEnemy(trap);
-    }
+    public void visitTrap(Trap trap) { visitEnemy(trap); }
 
     private void visitPlayer(Player player){
-        int attack = rollAttackDefense(enemyAttacker.getAttack());
-        int defense = rollAttackDefense(player.getDefense());
-        player.takeDamage(attack - defense);
-        // if (player.getHealth() == 0) handleDeathOfPlayer(player); TODO ?
+        engaged(enemyAttacker, player);
+        int attack = rollAttack(enemyAttacker.getName(), enemyAttacker.getAttack());
+        int defense = rollDefense(player.getName(), player.getDefense());
+        dealDamage(enemyAttacker, player, attack - defense);
+        // Death of player handled in setHealth in Player
     }
 
-    private int rollAttackDefense(int limit)
-    {
-        return new Random().nextInt(0,limit+1);
+    private void visitEnemy(Enemy enemy){
+        engaged(attacker, enemy);
+        int attack = rollAttack(attacker.getName(), attacker.getAttack());
+        int defense = rollDefense(enemy.getName(), enemy.getDefense());
+        dealDamage(attacker, enemy, attack - defense);
+        if (enemy.getHealth() == 0) // The setHealth take care in negative values
+            handleDeathOfEnemy(enemy);
     }
+
+    private void engaged(Unit attacker, Unit defender){
+        callback.update(attacker.getName() + " engaged in combat with " + defender.getName() + ".\n");
+        callback.update(attacker + "\n");
+        callback.update(defender + "\n");
+    }
+
+    private int rollAttack(String name, int limit)
+    {
+        int points = new Random().nextInt(0,limit+1);
+        callback.update(name + " rolled " + points + " attack points.\n");
+        return points;
+    }
+
+    private int rollDefense(String name, int limit)
+    {
+        int points = new Random().nextInt(0,limit+1);
+        callback.update(name + " rolled " + points + " Defense points.\n");
+        return points;
+    }
+
+    private void dealDamage(Unit attacker, Unit defender, int damage) {
+        if (damage < 0)
+            damage = 0;
+        callback.update(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + ".\n");
+        defender.takeDamage(damage);
+    }
+
     private void handleDeathOfEnemy(Enemy enemy)
     {
-
         handleXP(enemy);
         handleTileClearance(enemy);
         gameBoard.setEnemyCount(gameBoard.getEnemyCount()-1);
@@ -91,15 +109,13 @@ public class AttackAction implements UnitVisitor {
     private void handleXP(Enemy enemy) {
 
         attacker.setExperience(attacker.getExperience() + enemy.getXP());
-        if (this.attacker.getExperience() >= (50 * this.attacker.getLevel())) {
-
-            this.attacker.setExperience(attacker.getExperience() - 50 * attacker.getLevel());
-            this.attacker.setLevel(attacker.getLevel() + 1);
-            this.attacker.setMaxHealth(attacker.getMaxHealth() + 10 * attacker.getLevel());
-            this.attacker.setHealth(attacker.getMaxHealth());
-            this.attacker.setAttack(attacker.getAttack() + (4 * attacker.getLevel()));
-            this.attacker.setDefense(attacker.getDefense() + (attacker.getLevel()));
-
+        if (attacker.getExperience() >= (50 * attacker.getLevel())) {
+            attacker.setExperience(attacker.getExperience() - 50 * attacker.getLevel());
+            attacker.setLevel(attacker.getLevel() + 1);
+            attacker.setMaxHealth(attacker.getMaxHealth() + 10 * attacker.getLevel());
+            attacker.setHealth(attacker.getMaxHealth());
+            attacker.setAttack(attacker.getAttack() + (4 * attacker.getLevel()));
+            attacker.setDefense(attacker.getDefense() + (attacker.getLevel()));
         }
     }
     private void handleTileClearance(Enemy enemy)

@@ -28,7 +28,7 @@ public class Main {
         System.out.println(board);
         p.accept(new MoveAction('a',board));
         System.out.println(board);
-        Unit t=new Trap("bulbul",12,12);
+        Unit t=new Trap("bulbul");
 
     }
 }
