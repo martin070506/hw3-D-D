@@ -4,12 +4,14 @@ import Actions.SpecialAttackAction;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.*;
+import UI.UserInterface;
 import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -69,11 +71,9 @@ public class GameBoard implements GameBoardCallback {
 
     // Other Methods
     public void nextTick(String input){
-
         if (input.length() != 1) {
             return;
         }
-
         switch (input.charAt(0)) {
             case 'w':
             case 'a':
@@ -89,63 +89,49 @@ public class GameBoard implements GameBoardCallback {
             default:
                 return;
         }
-
         callback.update(player.toString() + '\n');
-
         GameBoard newGameBoard = temporaryGameBoard(this);
         for (int i = 0; i < getHeight(); i++)
             for (int j = 0; j < getWidth(); j++)
-                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType()))
-                    board[i][j].getUnit().accept(new MoveAction(player, new Point(i, j),
-                            board[j][i].getType(), this, newGameBoard));
+                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType())&&board[i][j].getUnit()!=null)
+                    board[i][j].getUnit().accept(new MoveAction(player, new Point(j, i),
+                            board[i][j].getType(), this, newGameBoard));
 
         board = newGameBoard.board;
         callback.update(toString());
     }
 
-    public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException
-    {
-        String content = Files.readString(Paths.get(TXTFilePath));
-        int height = 1;
-        for (int i = 0; i < content.length(); i++)
-            if (content.charAt(i) == '\n')
-                height++;
+    public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(TXTFilePath));
+        int height = lines.size();
+        int width = lines.get(0).length();  // since you guarantee all lines same length
 
-        int length = content.length() / height;
-        GameTile[][] newBoard = new GameTile[height][length];
-        int currentYPos = 0;
-        int currentXPos = 0;
-        for (int i = 0; i < content.length(); i++)
-        {
-            char type = content.charAt(i);
-            if (type == '\n') {
-                currentYPos++;
-                currentXPos = 0;
-            }
-            else if (currentXPos <= length && currentYPos <= height)
-                {
-                    if (type == '@')
-                    {
-                        newBoard[currentYPos][currentXPos] = new GameTile(type, player,new Point(currentXPos, currentYPos));
-                        player.setLocation(new Point(currentXPos, currentYPos));
-                    }
-                    else
-                    {
-                        if (chooseUnitByType(type) != null && !Set.of('B','Q','D').contains(type))
-                            enemyCount += 1;
-                        newBoard[currentYPos][currentXPos] = new GameTile(type, chooseUnitByType(type), new Point(currentXPos, currentYPos));
-                    }
-                    currentXPos++;
+        GameTile[][] newBoard = new GameTile[height][width];
+
+        for (int y = 0; y < height; y++) {
+            String line = lines.get(y);
+            for (int x = 0; x < width; x++) {
+                char type = line.charAt(x);
+                if (type == '@') {
+                    newBoard[y][x] = new GameTile(type, player, new Point(x, y));
+                    player.setLocation(new Point(x, y));
+                } else {
+                    if (chooseUnitByType(type) != null)
+                        enemyCount += 1;
+                    newBoard[y][x] = new GameTile(type, chooseUnitByType(type), new Point(x, y));
                 }
+            }
         }
+
         return newBoard;
     }
+
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
         GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth());
         for (int i = 0; i < gameBoard.getHeight(); i++)
             for (int j = 0; j < gameBoard.getWidth(); j++)
-                if (Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
+                if (board[i][j]!=null&&Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
                         newGameBoard.board[i][j] = gameBoard.board[i][j];
 
         return newGameBoard;
@@ -237,6 +223,7 @@ public class GameBoard implements GameBoardCallback {
 
     private Player choosePlayer()
     {
+        callback=new UserInterface();
         Scanner s = new Scanner(System.in);
         callback.update("Choose a Player (1-6):\n");
         callback.update("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
@@ -285,7 +272,10 @@ public class GameBoard implements GameBoardCallback {
         StringBuilder sb = new StringBuilder();
         for (GameTile[] row : board) {
             for (GameTile tile : row)
+            {
+                if(tile!=null)
                 sb.append(tile.getType());
+            }
             sb.append('\n');
         }
         return sb.toString();

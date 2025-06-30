@@ -2,6 +2,7 @@ package UI;
 
 import BoardLogic.GameBoard;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -11,14 +12,37 @@ public class UserInterface implements UserInterfaceCallback {
     private final Scanner scanner = new Scanner(System.in);
     private String input;
     private boolean gameOver;
+    private File[] files;
 
-    public UserInterface(String TXTFilePath) throws IOException {
-        this.gameBoard = new GameBoard(TXTFilePath);
+    public UserInterface(String TXTFolderPath) throws IOException {
+        File folder=new File(TXTFolderPath);
+        File[] files=folder.listFiles();
+        this.files=files;
+        File firstFile = null;
+        for (File f : files) {
+            if (f.isFile() && f.getName().toLowerCase().endsWith(".txt")) {
+                firstFile = f;
+                break;
+            }
+        }
+
+        if (firstFile == null) {
+            throw new IOException("No .txt files found in folder: " + TXTFolderPath);
+        }
         this.gameOver = false;
     }
+    public UserInterface(){}
+    public void startGame() throws IOException {
+        for(File f:this.files)
+        {
+            if(!gameOver)
+            startLevel(f.getAbsolutePath());
+        }
+    }
 
-    public void startGame() {
-        while (!gameOver) {
+    public void startLevel(String txtFilePath) throws IOException {
+        this.gameBoard=new GameBoard(txtFilePath);
+        while (!gameOver&& gameBoard.getEnemyCount()>0) {
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
         }
@@ -33,5 +57,12 @@ public class UserInterface implements UserInterfaceCallback {
     public void endGame() {
         System.out.println(gameBoard.toString());
         gameOver = true;
+    }
+    public GameBoard getGameBoard(){return gameBoard;}
+    public void TestMethod(String FolderPath) throws IOException {
+        File folder=new File(FolderPath);
+
+        gameBoard=new GameBoard(folder.listFiles()[0].getAbsolutePath());
+        System.out.println(gameBoard);
     }
 }
