@@ -5,18 +5,20 @@ import BoardLogic.GameBoard;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class UserInterface implements GameUpdateCallback {
+public class UserInterface implements UserInterfaceCallback {
 
     private GameBoard gameBoard;
     private final Scanner scanner = new Scanner(System.in);
     private String input;
+    private boolean gameOver;
 
     public UserInterface(String TXTFilePath) throws IOException {
         this.gameBoard = new GameBoard(TXTFilePath);
+        this.gameOver = false;
     }
 
     public void startGame() {
-        while (true) {
+        while (!gameOver) {
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
             // TODO Add indicator for game complete
@@ -31,6 +33,7 @@ public class UserInterface implements GameUpdateCallback {
 
     @Override
     public void endGame() {
-        // TODO Stop the game
+        System.out.println(gameBoard.toString());
+        gameOver = true;
     }
 }

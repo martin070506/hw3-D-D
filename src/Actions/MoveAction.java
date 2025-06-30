@@ -161,6 +161,7 @@ public class MoveAction implements UnitVisitor {
 
        moveMonster(monster, new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY));
     }
+
     @Override
     public void visitTrap(Trap trap) {
         trap.increaseTick();
@@ -179,6 +180,7 @@ public class MoveAction implements UnitVisitor {
 
         return true;
     }
+
     private boolean hardRange(Monster monster) {
         return player.getLocation().distance(enemyLocation) < monster.getVisionRange();
     }

@@ -113,7 +113,7 @@ public class MoveActionTest {
     }
     @Test
     public void testAttemptMoveIntoTrapDoesNotMove() {
-        Unit trap = new Trap("Death Trap", 1, 10);
+        Unit trap = new Trap("Death Trap");
         gameBoard.getBoard()[1][2] = new GameTile('D', trap, new Point(2, 1));
         MoveAction action = new MoveAction('w', gameBoard);
         warrior.accept(action);
@@ -281,7 +281,7 @@ public class MoveActionTest {
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
-        Unit trap = new Trap("Death Trap", 1, 10);
+        Unit trap = new Trap("Death Trap");
         Point trapPos = new Point(3, 2);
         board.getBoard()[2][3] = new GameTile('D', trap, trapPos);
 
@@ -298,7 +298,7 @@ public class MoveActionTest {
         player.setLocation(new Point(0, 0));
         board.getBoard()[0][0] = new GameTile('@', player, new Point(0, 0));
 
-        Unit trap = new Trap("Death Trap", 1, 10);
+        Unit trap = new Trap("Death Trap");
         Point trapPos = new Point(4, 4);
         board.getBoard()[4][4] = new GameTile('D', trap, trapPos);
 
@@ -327,7 +327,7 @@ public class MoveActionTest {
 
     @Test
     public void testTrapTickIncrements() {
-        Trap trap = new Trap("Death Trap", 1, 10);
+        Trap trap = new Trap("Death Trap");
         Player player = GameBoard.choosePlayer("1");
         player.setLocation(new Point(2, 2));
         GameBoard board = new GameBoard(player, 5, 5);
@@ -348,7 +348,7 @@ public class MoveActionTest {
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
-        Trap trap = new Trap("Death Trap", 1, 10);
+        Trap trap = new Trap("Death Trap");
         Point trapPos = new Point(3, 3); // distance ~1.41 < 2
         board.getBoard()[3][3] = new GameTile('D', trap, trapPos);
 
@@ -382,7 +382,7 @@ public class MoveActionTest {
         GameBoard board = new GameBoard(player, 5, 5);
         player.setLocation(new Point(0, 0));
 
-        Trap trap = new Trap("Death Trap", 1, 10);
+        Trap trap = new Trap("Death Trap");
         Point trapPos = new Point(4, 4);
 
         assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board, board)));

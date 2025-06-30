@@ -19,4 +19,10 @@ public abstract class Enemy extends Unit {
     /// Methods
     // Getters
     public int getXP() { return XP; }
+
+    // Other Methods
+    @Override
+    public String toString() {
+        return super.toString() + "    Experience Value: " + getXP();
+    }
 }

@@ -18,8 +18,8 @@ public class Trap extends Enemy{
 
     private Trap(String name, int[] stat) {
         super(name, stat[0], stat[1], stat[2], stat[3]);
-        this.visibilityTime = stat[5];
-        this.invisibilityTime = stat[6];
+        this.visibilityTime = stat[4];
+        this.invisibilityTime = stat[5];
         this.ticksCount = 0;
         this.visible = true;
     }

@@ -55,4 +55,12 @@ public abstract class Unit {
         if (damage > 0)
             setHealth(health - damage);
     }
+
+    @Override
+    public String toString() {
+        return getName() + " -" +
+                "    Health: " + getHealth() + '/' + getMaxHealth() +
+                "    Attack: " + getAttack() +
+                "    Defense: " + getDefense();
+    }
 }

@@ -49,4 +49,9 @@ public class Monster extends Enemy {
             default -> throw new IllegalArgumentException("Unknown Monster: " + name);
         };
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "    Vision Range: " + getVisionRange();
+    }
 }

@@ -1,6 +1,6 @@
 package UI;
 
-public interface GameUpdateCallback {
+public interface UserInterfaceCallback {
 
     void update(String message);
     void endGame();

@@ -1,15 +1,16 @@
 package Player_Types;
 
+import BoardLogic.GameBoardCallback;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
 public abstract class Player extends Unit {
     /// Fields
-    private Point location;
+    private Point location; // TODO not being used, and has getter
     private int experience;
     private int level;
-
+    private GameBoardCallback callback;
 
 
 
@@ -38,4 +39,19 @@ public abstract class Player extends Unit {
 
     // Abstract Methods
     public abstract void accept(UnitVisitor unitVisitor);
+
+    // Other Methods
+    @Override
+    public void takeDamage(int damage) {
+        super.takeDamage(damage);
+        if (getHealth() <= 0)
+            callback.endGame();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "    Level: " + getLevel() +
+                "    Experience: " + getExperience() + '/' + 50 * getLevel();
+    }
 }

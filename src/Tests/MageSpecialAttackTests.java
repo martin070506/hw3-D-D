@@ -2,7 +2,6 @@ package Tests;
 
 import Actions.SpecialAttackAction;
 import BoardLogic.GameBoard;
-import BoardLogic.GameTile;
 import BoardLogic.Point;
 import EnemyTypes.Monster;
 import Player_Types.Mage;
@@ -34,7 +33,7 @@ public class MageSpecialAttackTests {
 
     @BeforeEach
     public void setupGame() throws IOException {
-        mage = new Mage("TestMage", 100, 30, 5, 100, 20, 25, 3, 2);
+        mage = new Mage("TestMage", 100, 30, 5, 2, 100, 20, 3, 25);
         mage.setLocation(new Point(1, 1));
         board = new GameBoard(tempFile.toString(), mage);
         specialAttackAction = new SpecialAttackAction(board);
