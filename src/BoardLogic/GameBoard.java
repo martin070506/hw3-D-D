@@ -30,33 +30,33 @@ public class GameBoard implements GameBoardCallback {
     // default constructor where player is selected for first Time
     // it build the board and selects Player
     public GameBoard(String TXTFilePath, UserInterfaceCallback UI) throws IOException {
+        callback = UI;
         enemyCount = 0;
         Player chosenPlayer = choosePlayer();
         player = chosenPlayer;
         player.setCallback(this);
         board = BuildBoard(TXTFilePath, chosenPlayer);
-        callback = UI;
     }
 
     // constructor for if player is already available,for example passing a level stays with the same
     // Player so the constructor builds a new board with a predefined player
     public GameBoard(String TXTFilePath, Player player, UserInterfaceCallback UI) throws IOException
     {
+        callback = UI;
         enemyCount = 0;
         this.player = player;
         player.setCallback(this);
         board = BuildBoard(TXTFilePath, player);
-        callback = UI;
     }
 
     public GameBoard(Player player, int length, int width, UserInterfaceCallback UI) {
+        callback = UI;
         board = new GameTile[length][width];
         this.player = player;
         player.setCallback(this);
         for (int i = 0; i < length; i++)
             for (int j = 0; j < width; j++)
                 board[i][j] = new GameTile('.', null, new Point(i,j));
-        callback = UI;
     }
 
 
@@ -259,14 +259,13 @@ public class GameBoard implements GameBoardCallback {
     private Player choosePlayer()
     {
         Scanner s = new Scanner(System.in);
-        callback.update("Choose a Player (1-6):\n");
-        callback.update("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
-        callback.update("2 - The Hound     (Warrior)     | Health: 400, Attack: 20, Defense: 6, Cooldown: 5\n");
-        callback.update("3 - Melisandre    (Mage)        | Health: 100, Attack: 5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6\n");
-        callback.update("4 - Thoros of Myr (Mage)        | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
-        callback.update("5 - Arya Stark    (Rogue)       | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
-        callback.update("6 - Bronn         (Rogue)       | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
-        callback.update("Enter your choice (1-6): ");
+        callback.update("Select Player :\n");
+        callback.update("1 - Jon Snow      (Warrior)  | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
+        callback.update("2 - The Hound     (Warrior)  | Health: 400, Attack: 20, Defense: 6, Cooldown: 5\n");
+        callback.update("3 - Melisandre    (Mage)     | Health: 100, Attack:  5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6\n");
+        callback.update("4 - Thoros of Myr (Mage)     | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
+        callback.update("5 - Arya Stark    (Rogue)    | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
+        callback.update("6 - Bronn         (Rogue)    | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
         String type = s.next();
         return switch (type) {
             case "1" -> choosePlayer("1");
