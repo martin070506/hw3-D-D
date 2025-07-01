@@ -91,11 +91,11 @@ public class Hunter extends Player {
     }
 
     public void updateTickCount() {
+        ticksCount++;
         if (ticksCount == 10) {
             setArrowsCount(arrowsCount + getLevel());
             ticksCount = 0;
         }
-        else
-            ticksCount++;
+
     }
 }

@@ -55,6 +55,7 @@ public class UserInterface implements UserInterfaceCallback {
         System.out.println(gameBoard.getPlayer());
         System.out.println(gameBoard);
         while (!gameOver && gameBoard.getEnemyCount() > 0) {
+
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
         }

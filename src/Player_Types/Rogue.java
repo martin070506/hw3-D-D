@@ -57,8 +57,8 @@ public class Rogue extends Player {
         this.maxEnergy = maxEnergy;
     }
     public void setCurrentEnergy(int currentEnergy) {
-        if (currentEnergy < 100)
-            currentEnergy = 100;
+        if (currentEnergy <0)
+            currentEnergy = 0;
         if (currentEnergy > maxEnergy)
             currentEnergy = maxEnergy;
         this.currentEnergy = currentEnergy;

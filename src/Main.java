@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) throws IOException {
-        UserInterface UI = new UserInterface("/Users/liav/Downloads/levels_dir");
+        UserInterface UI = new UserInterface(args[0]);
         UI.startGame();
     }
 }

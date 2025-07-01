@@ -117,6 +117,7 @@ public class GameBoard implements GameBoardCallback {
     public void nextTick(String input){
         if (input.length() != 1)
             return;
+        callback.update("Enemies Left:" + getEnemyCount()+ '\n');
 
         switch (input.charAt(0)) {
             case 'w':
@@ -135,15 +136,25 @@ public class GameBoard implements GameBoardCallback {
         }
         callback.update(player.toString() + '\n');
         GameBoard newGameBoard = temporaryGameBoard(this);
+        int counter=0;
         for (int y = 0; y < getHeight(); y++)
+        {
             for (int x = 0; x < getWidth(); x++)
-                if (!Set.of('@', '#', '.').contains(board[y][x].getType()) &&
-                        board[y][x].getUnit() != null)
-                    board[y][x].getUnit().accept(new MoveAction(player, new Point(x,y),
-                            board[y][x].getType(), this, newGameBoard), false);
+            {
+                if (!Set.of('@', '#', '.').contains(board[y][x].getType()) && board[y][x].getUnit() != null)
+                {
+                    board[y][x].getUnit().accept(new MoveAction(player, new Point(x,y), board[y][x].getType(), this, newGameBoard), false);
+                    counter++;
+                }
+
+
+            }
+        }
+         this.setEnemyCount(counter);
 
         board = newGameBoard.board;
         callback.update(toString());
+
     }
 
     public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException {

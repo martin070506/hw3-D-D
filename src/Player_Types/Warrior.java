@@ -71,9 +71,11 @@ public class Warrior extends Player
         if (!enemyTileList.isEmpty()) {
             GameTile enemyTile = enemyTileList.get(new Random().nextInt(enemyTileList.size()));
             enemyTile.getUnit().accept(getCallback().playerAttack(this, 'e', enemyTile.getPosition()), true);
+
         }
         if (level != getLevel())
             MoveAction.handleLevelUpWarrior(this, level, getLevel());
+
 
         return true;
     }
@@ -97,3 +99,4 @@ public class Warrior extends Player
         };
     }
 }
+

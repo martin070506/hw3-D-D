@@ -136,7 +136,7 @@ public class MageSpecialAttackTests {
         mage.setCurrentMana(100);
         int initialXP = mage.getExperience();
 
-        // mage.accept(special);
+       emptyBoard.nextTick("e");
 
         assertNotEquals(100, mage.getCurrentMana(), "Mana should still be consumed");
         assertEquals(initialXP, mage.getExperience(), "XP should stay same if no targets");
@@ -152,7 +152,7 @@ public class MageSpecialAttackTests {
             int beforeMana = mage.getCurrentMana();
             int beforeXP = mage.getExperience();
 
-            // mage.accept(specialAttackAction); TODO
+            board.nextTick("e");
 
             assertTrue(mage.getCurrentMana() < beforeMana, "Mana should decrease on Blizzard");
             assertTrue(mage.getExperience() >= beforeXP, "XP should never decrease");
