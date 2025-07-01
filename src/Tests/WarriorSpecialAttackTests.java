@@ -7,6 +7,8 @@ import BoardLogic.Point;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Warrior;
+import UI.UserInterface;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.*;
 
@@ -17,7 +19,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class WarriorSpecialAttackTests {
-
+    private UserInterfaceCallback UI;
     private static Path tempFile;
     private GameBoard board;
     private Warrior warrior;
@@ -35,9 +37,10 @@ public class WarriorSpecialAttackTests {
 
     @BeforeEach
     public void setupGame() throws IOException {
-        warrior = new Warrior("TestWarrior", 100, 50, 5, 3);
+        UI = new UserInterface();
+        warrior = new Warrior("Jon Snow");
         warrior.setLocation(new Point(1, 1));
-        board = new GameBoard(tempFile.toString(), warrior);
+        board = new GameBoard(tempFile.toString(), warrior, UI);
         specialAttackAction = new SpecialAttackAction(board);
     }
 
@@ -75,8 +78,8 @@ public class WarriorSpecialAttackTests {
 
         int oldXP = warrior.getExperience();
         warrior.setRemainingCooldown(0);
-
-        warrior.accept(specialAttackAction);
+        for (int i = 0; i < 5; i++)
+            warrior.accept(specialAttackAction);
 
         assertTrue(warrior.getExperience() > oldXP, "Warrior should gain XP after killing an enemy");
         assertNull(board.getBoard()[0][1].getUnit(), "Tile should be cleared after enemy death");
@@ -92,7 +95,7 @@ public class WarriorSpecialAttackTests {
         Path trapFile = Files.createTempFile("trap_board", ".txt");
         Files.writeString(trapFile, trapLayout);
 
-        GameBoard trapBoard = new GameBoard(trapFile.toString(), warrior);
+        GameBoard trapBoard = new GameBoard(trapFile.toString(), warrior, UI);
         warrior.setRemainingCooldown(0);
 
         warrior.accept(new SpecialAttackAction(trapBoard));
@@ -125,7 +128,7 @@ public class WarriorSpecialAttackTests {
         Path emptyFile = Files.createTempFile("empty_board", ".txt");
         Files.writeString(emptyFile, emptyLayout);
 
-        GameBoard emptyBoard = new GameBoard(emptyFile.toString(), warrior);
+        GameBoard emptyBoard = new GameBoard(emptyFile.toString(), warrior, UI);
         warrior.setRemainingCooldown(0);
         int oldXP = warrior.getExperience();
 

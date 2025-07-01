@@ -1,7 +1,6 @@
 package Actions;
 
 import BoardLogic.GameBoard;
-import BoardLogic.GameBoardCallback;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
 import EnemyTypes.Enemy;
@@ -23,19 +22,21 @@ public class AttackAction implements UnitVisitor {
     private GameBoard gameBoard;
     private Unit enemyAttacker;
     private char directionKey;
-    private UserInterfaceCallback callback;
+    private final UserInterfaceCallback callback;
 
 
-    public AttackAction(Player attacker, GameBoard gameBoard,char directionKey)
+    public AttackAction(Player attacker, GameBoard gameBoard, char directionKey)
     {
         this.attacker = attacker;
         this.gameBoard = gameBoard;
         this.directionKey = directionKey;
+        this.callback = gameBoard.getCallback();
     }
 
-    public AttackAction (Enemy attacker)
+    public AttackAction (Enemy attacker, UserInterfaceCallback callback)
     {
-        this.enemyAttacker = attacker;
+        enemyAttacker = attacker;
+        this.callback = callback;
     }
 
     @Override
@@ -120,9 +121,9 @@ public class AttackAction implements UnitVisitor {
     }
     private void handleTileClearance(Enemy enemy)
     {
-        GameTile[][] boardMatrix=gameBoard.getBoard();
-        int x=attacker.getLocation().getX();
-        int y=attacker.getLocation().getY();
+        GameTile[][] boardMatrix = gameBoard.getBoard();
+        int x = attacker.getLocation().getX();
+        int y = attacker.getLocation().getY();
 
         switch (directionKey)
         {
@@ -155,10 +156,7 @@ public class AttackAction implements UnitVisitor {
                 break;
             }
             default:
-            {
                 break;
-            }
-
         }
     }
 }

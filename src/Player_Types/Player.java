@@ -7,10 +7,10 @@ import Unit_Logic.UnitVisitor;
 
 public abstract class Player extends Unit {
     /// Fields
+    private GameBoardCallback callback;
     private Point location; // TODO not being used, and has getter
     private int experience;
     private int level;
-    private GameBoardCallback callback;
 
 
 
@@ -32,6 +32,7 @@ public abstract class Player extends Unit {
     public int getLevel() { return level; }
 
     // Setters
+    public void setCallback(GameBoardCallback callback) { this.callback = callback; }
     public void setLocation(Point location) { this.location = location; }
     public void setExperience(int experience) { this.experience = experience; }
     public void setLevel(int playerLevel) { this.level = playerLevel; }

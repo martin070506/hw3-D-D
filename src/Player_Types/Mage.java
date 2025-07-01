@@ -1,5 +1,6 @@
 package Player_Types;
 
+import BoardLogic.GameBoard;
 import Unit_Logic.UnitVisitor;
 
 public class Mage extends Player   {
@@ -14,16 +15,19 @@ public class Mage extends Player   {
 
 
     /// Constructors
-    public Mage(String name, int maxHealth, int attack, int defense, int attackRange, int manaPool,
-                int manaCost, int maxSpecialAbilityHits, int spellPower)
+    public Mage(String name)
     {
-        super(name, maxHealth, attack, defense);
-        this.attackRange = attackRange;
-        this.manaPool = manaPool;
-        this.currentMana = manaPool / 4;
-        this.manaCost = manaCost;
-        this.maxSpecialAbilityHits = maxSpecialAbilityHits;
-        this.spellPower = spellPower;
+        this(name, getMageStat(name));
+    }
+
+    private Mage(String name, int[] stat){
+        super(name, stat[0], stat[1], stat[2]);
+        attackRange = stat[3];
+        manaPool = stat[4];
+        currentMana = manaPool / 4;
+        manaCost = stat[5];
+        maxSpecialAbilityHits = stat[6];
+        spellPower = stat[7];
     }
 
 
@@ -62,6 +66,15 @@ public class Mage extends Player   {
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMage(this); }
 
     // Other Methods
+    private static int[] getMageStat(String name) {
+        return switch (name) {
+            case "Melisandre" -> new int[]{100, 5, 1, 6, 300, 30, 5, 15};
+            case "Thoros of Myr" -> new int[]{250, 25, 4, 4, 150, 20, 3, 20};
+
+            default -> throw new IllegalArgumentException("Unknown Mage: " + name);
+        };
+    }
+
     @Override
     public String toString() {
         return super.toString() +

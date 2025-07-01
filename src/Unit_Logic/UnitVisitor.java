@@ -6,6 +6,7 @@ import EnemyTypes.Trap;
 import Player_Types.Mage;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
+import UI.UserInterfaceCallback;
 
 public interface UnitVisitor {
     void visitMage(Mage mage);

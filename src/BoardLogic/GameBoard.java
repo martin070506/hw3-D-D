@@ -4,7 +4,6 @@ import Actions.SpecialAttackAction;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.*;
-import UI.UserInterface;
 import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 
@@ -17,38 +16,44 @@ import java.util.Set;
 
 public class GameBoard implements GameBoardCallback {
     /// Fields
-    private UserInterfaceCallback callback;
     private GameTile[][] board;
-    private Player player;
+    private final Player player;
     private int enemyCount;
+    private UserInterfaceCallback callback;
 
 
 
     /// Constructors
     // default constructor where player is selected for first Time
     // it build the board and selects Player
-    public GameBoard(String TXTFilePath) throws IOException {
+    public GameBoard(String TXTFilePath, UserInterfaceCallback UI) throws IOException {
         enemyCount = 0;
         Player chosenPlayer = choosePlayer();
         player = chosenPlayer;
+        player.setCallback(this);
         board = BuildBoard(TXTFilePath, chosenPlayer);
+        callback = UI;
     }
 
-    // constructor for if player is already available,for example passing a level stays with the same Player
-    // so the constructor builds a new board with a predefined player
-    public GameBoard(String TXTFilePath, Player player) throws IOException
+    // constructor for if player is already available,for example passing a level stays with the same
+    // Player so the constructor builds a new board with a predefined player
+    public GameBoard(String TXTFilePath, Player player, UserInterfaceCallback UI) throws IOException
     {
         enemyCount = 0;
         this.player = player;
+        player.setCallback(this);
         board = BuildBoard(TXTFilePath, player);
+        callback = UI;
     }
 
-    public GameBoard(Player player, int length, int width) {
+    public GameBoard(Player player, int length, int width, UserInterfaceCallback UI) {
         board = new GameTile[length][width];
         this.player = player;
+        player.setCallback(this);
         for (int i = 0; i < length; i++)
             for (int j = 0; j < width; j++)
                 board[i][j] = new GameTile('.', null, new Point(i,j));
+        callback = UI;
     }
 
 
@@ -58,8 +63,10 @@ public class GameBoard implements GameBoardCallback {
     public GameTile[][] getBoard() { return this.board; }
     public Player getPlayer() { return this.player; }
     public int getEnemyCount() { return this.enemyCount; }
+    public UserInterfaceCallback getCallback() { return callback; }
 
     // Setters
+    public void setCallback(UserInterfaceCallback callback) { this.callback = callback; }
     public void setEnemyCount(int enemyCount) { this.enemyCount=enemyCount; }
 
     // Abstract Methods
@@ -104,7 +111,7 @@ public class GameBoard implements GameBoardCallback {
     public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(TXTFilePath));
         int height = lines.size();
-        int width = lines.get(0).length();  // since you guarantee all lines same length
+        int width = lines.getFirst().length();  // since you guarantee all lines same length
 
         GameTile[][] newBoard = new GameTile[height][width];
 
@@ -128,7 +135,7 @@ public class GameBoard implements GameBoardCallback {
 
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
-        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth());
+        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth(), callback);
         for (int i = 0; i < gameBoard.getHeight(); i++)
             for (int j = 0; j < gameBoard.getWidth(); j++)
                 if (board[i][j]!=null&&Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
@@ -223,7 +230,6 @@ public class GameBoard implements GameBoardCallback {
 
     private Player choosePlayer()
     {
-        callback=new UserInterface();
         Scanner s = new Scanner(System.in);
         callback.update("Choose a Player (1-6):\n");
         callback.update("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
@@ -241,22 +247,19 @@ public class GameBoard implements GameBoardCallback {
             case "4" -> choosePlayer("4");
             case "5" -> choosePlayer("5");
             case "6" -> choosePlayer("6");
-            default -> {
-                callback.update("Must Enter Number Between 1 and 6\n");
-                yield choosePlayer();
-            }
+            default -> choosePlayer(); // That the way they did in their example
         };
     }
 
-    public static Player choosePlayer(String input)
+    public Player choosePlayer(String input)
     {
         return switch (input) {
-            case "1" -> new Warrior("Jon snow",300,30,3,3);
-            case "2" -> new Warrior("The Hound",400,20,6,5);
-            case "3" -> new Mage("Melisandre", 100,5,1, 6, 300,30, 5, 15);
-            case "4" -> new Mage("Thoros of Myr", 250, 25, 4, 4, 150, 20, 3, 20);
-            case "5" -> new Rogue("Arya Stark", 150, 40, 2, 20);
-            case "6" -> new Rogue("Bronn", 250, 35, 3, 50);
+            case "1" -> new Warrior("Jon snow");
+            case "2" -> new Warrior("The Hound");
+            case "3" -> new Mage("Melisandre");
+            case "4" -> new Mage("Thoros of Myr");
+            case "5" -> new Rogue("Arya Stark");
+            case "6" -> new Rogue("Bronn");
             default -> throw new IllegalArgumentException("Invalid input");
         };
     }
@@ -272,10 +275,8 @@ public class GameBoard implements GameBoardCallback {
         StringBuilder sb = new StringBuilder();
         for (GameTile[] row : board) {
             for (GameTile tile : row)
-            {
-                if(tile!=null)
-                sb.append(tile.getType());
-            }
+                if(tile != null)
+                    sb.append(tile.getType());
             sb.append('\n');
         }
         return sb.toString();

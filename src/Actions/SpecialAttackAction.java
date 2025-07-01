@@ -9,6 +9,7 @@ import Player_Types.Mage;
 import Player_Types.Player;
 import Player_Types.Rogue;
 import Player_Types.Warrior;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
@@ -16,12 +17,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class SpecialAttackAction implements UnitVisitor {
-    private GameBoard gameBoard;
-    private Point playerLocation;
+    private final GameBoard gameBoard;
+    private final Point playerLocation;
 
     public SpecialAttackAction(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
-        this.playerLocation = gameBoard.getPlayer().getLocation();
+        playerLocation = gameBoard.getPlayer().getLocation();
     }
 
     @Override

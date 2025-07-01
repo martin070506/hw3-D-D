@@ -3,6 +3,9 @@ package Tests;
 import BoardLogic.GameBoard;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
+import Player_Types.Rogue;
+import UI.UserInterface;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.*;
 
@@ -10,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static BoardLogic.GameBoard.choosePlayer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameBoardTest {
@@ -19,11 +21,13 @@ public class GameBoardTest {
             "@s.\n" +
                     "###\n" +
                     "...";
+    private UserInterfaceCallback UI;
 
     @BeforeEach
     public void setUp() throws IOException {
         tempFile = Files.createTempFile("test_board", ".txt");
         Files.writeString(tempFile, TEST_MAP);
+        UI = new UserInterface();
     }
 
     @AfterEach
@@ -33,7 +37,7 @@ public class GameBoardTest {
 
     @Test
     public void testBoardBuildAndPlayerPosition() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
 
         GameTile[][] tiles = board.getBoard();
         assertNotNull(tiles);
@@ -52,31 +56,31 @@ public class GameBoardTest {
 
     @Test
     public void testIsLegalMoveTrue() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertTrue(board.isLegalMove('d'));
     }
 
     @Test
     public void testIsLegalMoveFalse() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertFalse(board.isLegalMove('w'));
     }
 
     @Test
     public void testIsLegalMoveToWall() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertFalse(board.isLegalMove('s'));
     }
 
     @Test
     public void testIsLegalMoveAndUnitThereTrue() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertTrue(board.isLegalMoveAndUnitThere('d'));
     }
 
     @Test
     public void testIsLegalMoveAndUnitThereFalse() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertFalse(board.isLegalMoveAndUnitThere('a'));
     }
 
@@ -103,7 +107,7 @@ public class GameBoardTest {
 
     @Test
     public void testBoardToString() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
 
         String expected =
                 "@s.\n" +
@@ -115,7 +119,7 @@ public class GameBoardTest {
 
     @Test
     public void testEnemyCount() throws IOException {
-        GameBoard board = new GameBoard(tempFile.toString(), choosePlayer("5"));
+        GameBoard board = new GameBoard(tempFile.toString(), new Rogue("Arya Stark"), UI);
         assertEquals(1, board.getEnemyCount(), "There should be 1 enemy on the board.");
     }
 }

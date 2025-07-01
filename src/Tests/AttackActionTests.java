@@ -4,6 +4,7 @@ import Actions.AttackAction;
 import BoardLogic.GameBoard;
 import Player_Types.Player;
 import Player_Types.Rogue;
+import UI.UserInterface;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.*;
 
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AttackActionTests {
 
     private static Path tempFile;
+    private UserInterface UI;
     private GameBoard board;
     private Player player;
     private Unit enemy;
@@ -32,8 +34,9 @@ public class AttackActionTests {
 
     @BeforeEach
     public void setupGame() throws IOException {
-        player = new Rogue("TestRogue", 100, 50, 5, 5);
-        board = new GameBoard(tempFile.toString(), player);
+        UI = new UserInterface();
+        player = new Rogue("Bronn");
+        board = new GameBoard(tempFile.toString(), player, UI);
         enemy = board.getBoard()[0][1].getUnit(); // z = Wright (Monster)
     }
 
@@ -97,9 +100,9 @@ public class AttackActionTests {
     @Test
     public void testMultipleAttacksStillSafe() {
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++)
             enemy.accept(attackAction);
-        }
+
         assertTrue(enemy.getHealth() >= 0);
     }
 

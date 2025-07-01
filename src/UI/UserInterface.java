@@ -4,6 +4,7 @@ import BoardLogic.GameBoard;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class UserInterface implements UserInterfaceCallback {
@@ -15,34 +16,34 @@ public class UserInterface implements UserInterfaceCallback {
     private File[] files;
 
     public UserInterface(String TXTFolderPath) throws IOException {
-        File folder=new File(TXTFolderPath);
-        File[] files=folder.listFiles();
-        this.files=files;
+        File folder = new File(TXTFolderPath);
+        File[] files = folder.listFiles();
+        this.files = files;
         File firstFile = null;
-        for (File f : files) {
+        assert files != null;
+        for (File f : files)
             if (f.isFile() && f.getName().toLowerCase().endsWith(".txt")) {
                 firstFile = f;
                 break;
             }
-        }
 
-        if (firstFile == null) {
+        if (firstFile == null)
             throw new IOException("No .txt files found in folder: " + TXTFolderPath);
-        }
+
         this.gameOver = false;
     }
-    public UserInterface(){}
+
+    public UserInterface() {}
+
     public void startGame() throws IOException {
-        for(File f:this.files)
-        {
-            if(!gameOver)
-            startLevel(f.getAbsolutePath());
-        }
+        for (File f : files)
+            if (!gameOver)
+                startLevel(f.getAbsolutePath());
     }
 
     public void startLevel(String txtFilePath) throws IOException {
-        this.gameBoard=new GameBoard(txtFilePath);
-        while (!gameOver&& gameBoard.getEnemyCount()>0) {
+        gameBoard = new GameBoard(txtFilePath, this);
+        while (!gameOver && gameBoard.getEnemyCount() > 0) {
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
         }
@@ -58,11 +59,12 @@ public class UserInterface implements UserInterfaceCallback {
         System.out.println(gameBoard.toString());
         gameOver = true;
     }
-    public GameBoard getGameBoard(){return gameBoard;}
+
+    public GameBoard getGameBoard() { return gameBoard;}
     public void TestMethod(String FolderPath) throws IOException {
         File folder=new File(FolderPath);
 
-        gameBoard=new GameBoard(folder.listFiles()[0].getAbsolutePath());
+        gameBoard=new GameBoard(Objects.requireNonNull(folder.listFiles())[0].getAbsolutePath(), this);
         System.out.println(gameBoard);
     }
 }
