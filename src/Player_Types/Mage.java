@@ -1,6 +1,6 @@
 package Player_Types;
 
-import EnemyTypes.Enemy;
+import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
@@ -66,9 +66,11 @@ public class Mage extends Player   {
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMage(this); }
 
     @Override
-    public void castAbility(){
+    public boolean castAbility(Point location){
         if (currentMana < manaCost)
-            return;
+            return false;
+
+        int level = getLevel();
         Random rand = new Random();
         currentMana -= manaCost;
         ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
@@ -78,6 +80,10 @@ public class Mage extends Player   {
             enemyList.get(random).accept(getCallback().playerAttack(this, 'e'));
             enemyList.remove(random);
         }
+        if (level != getLevel());
+            // TODO something
+
+        return true;
     }
 
     @Override

@@ -100,8 +100,8 @@ public class GameBoard implements GameBoardCallback {
     }
 
     @Override
-    public void enemyAttack(Enemy enemy) {
-        player.accept(new AttackAction(enemy, callback));
+    public void enemyAttack(Enemy enemy, Point location) {
+        player.accept(new AttackAction(enemy, location, callback));
     }
 
     // Other Methods
@@ -117,7 +117,7 @@ public class GameBoard implements GameBoardCallback {
                 player.accept(new MoveAction(input.charAt(0), this));
                 break;
             case 'e':
-                player.castAbility();
+                player.castAbility(null);
                 break;
             case 'q':
                 break;

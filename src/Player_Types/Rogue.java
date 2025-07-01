@@ -1,6 +1,6 @@
 package Player_Types;
 
-import EnemyTypes.Enemy;
+import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
@@ -66,13 +66,19 @@ public class Rogue extends Player {
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitRogue(this); }
 
     @Override
-    public void castAbility(){
+    public boolean castAbility(Point location){
         if (currentEnergy < abilityCost)
-            return;
+            return false;
+
+        int level = getLevel();
         currentEnergy -= abilityCost;
         ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
         for (Unit enemy : enemyList)
             enemy.accept(getCallback().playerAttack(this, 'e'));
+        if (level != getLevel());
+            // TODO something
+
+        return true;
     }
 
     // Other Methods

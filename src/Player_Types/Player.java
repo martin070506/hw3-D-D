@@ -41,7 +41,7 @@ public abstract class Player extends Unit implements HeroicUnit {
 
     // Abstract Methods
     public abstract void accept(UnitVisitor unitVisitor);
-    public abstract void castAbility();
+    public abstract boolean castAbility(Point location);
 
     // Other Methods
     @Override

@@ -18,9 +18,9 @@ import java.util.Set;
 
 public class MoveAction implements UnitVisitor {
     private char directionKey;
+    private  Point enemyLocation;
     private final GameBoard originalGameBoard;
     private GameBoard newGameBoard;
-    private Point enemyLocation;
     private Player player;
     private char enemyType;
     private final UserInterfaceCallback callback;
@@ -72,7 +72,7 @@ public class MoveAction implements UnitVisitor {
     }
 
     @Override
-    public void visitMonster(Monster monster) {
+    public void visitMonster(Monster monster, Point location) {
 
         if (!playerInRange(monster)) {
             moveRandom(monster);
@@ -99,21 +99,22 @@ public class MoveAction implements UnitVisitor {
     }
 
     @Override
-    public void visitTrap(Trap trap) {
+    public void visitTrap(Trap trap, Point location) {
         trap.increaseTick();
 
         if (player.getLocation().distance(enemyLocation) < 2.0)
-            player.accept(new AttackAction(trap, callback));
+            player.accept(new AttackAction(trap, enemyLocation, callback));
     }
 
     @Override
-    public void visitBoss(Boss boss, boolean ability) {
-        if (!playerInRange(boss))
+    public void visitBoss(Boss boss, Point location) {
+        if (!playerInRange(boss)){
+            moveRandom(boss);
             return;
-        // TODO change - not ready
-        if (ability)
-            boss.castAbility();
-        player.accept(new AttackAction(boss, callback));
+        }
+
+        if (!boss.castAbility(null))
+            visitMonster(boss, location);
     }
 
     private void visitPlayer(Player player)
@@ -240,7 +241,7 @@ public class MoveAction implements UnitVisitor {
 
     private void moveMonster(Monster monster, Point destination) {
         if (player.getLocation().equals(destination)) {
-            player.accept(new AttackAction(monster, callback));
+            player.accept(new AttackAction(monster, enemyLocation, callback));
             return;
         }
 

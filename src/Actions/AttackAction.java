@@ -23,6 +23,7 @@ public class AttackAction implements UnitVisitor {
     private GameBoard gameBoard;
     private Unit enemyAttacker;
     private char directionKey;
+    private Point location;
     private final UserInterfaceCallback callback;
 
 
@@ -34,9 +35,10 @@ public class AttackAction implements UnitVisitor {
         this.callback = gameBoard.getCallback();
     }
 
-    public AttackAction (Enemy attacker, UserInterfaceCallback callback)
+    public AttackAction(Enemy attacker, Point location, UserInterfaceCallback callback)
     {
         enemyAttacker = attacker;
+        this.location = location;
         this.callback = callback;
     }
 
@@ -52,13 +54,13 @@ public class AttackAction implements UnitVisitor {
     }
 
     @Override
-    public void visitMonster(Monster monster) { visitEnemy(monster); }
+    public void visitMonster(Monster monster, Point location) { visitEnemy(monster, location); }
 
     @Override
-    public void visitTrap(Trap trap) { visitEnemy(trap); }
+    public void visitTrap(Trap trap, Point location) { visitEnemy(trap, location); }
 
     @Override
-    public void visitBoss(Boss boss, boolean active) { visitEnemy(boss); }
+    public void visitBoss(Boss boss, Point location) { visitEnemy(boss, location); }
 
     private void visitPlayer(Player player){
         engaged(enemyAttacker, player);
@@ -68,13 +70,13 @@ public class AttackAction implements UnitVisitor {
         // Death of player handled in setHealth in Player
     }
 
-    private void visitEnemy(Enemy enemy){
+    private void visitEnemy(Enemy enemy, Point location){
         engaged(attacker, enemy);
         int attack = rollAttack(attacker.getName(), attacker.getAttack());
         int defense = rollDefense(enemy.getName(), enemy.getDefense());
         dealDamage(attacker, enemy, attack - defense);
         if (enemy.getHealth() == 0) // The setHealth take care in negative values
-            handleDeathOfEnemy(enemy);
+            handleDeathOfEnemy(enemy, location);
     }
 
     private void engaged(Unit attacker, Unit defender){
@@ -104,10 +106,10 @@ public class AttackAction implements UnitVisitor {
         defender.takeDamage(damage);
     }
 
-    private void handleDeathOfEnemy(Enemy enemy)
+    private void handleDeathOfEnemy(Enemy enemy, Point location)
     {
         handleXP(enemy);
-        handleTileClearance(enemy);
+        handleTileClearance(location);
         gameBoard.setEnemyCount(gameBoard.getEnemyCount()-1);
     }
 
@@ -124,7 +126,7 @@ public class AttackAction implements UnitVisitor {
         }
     }
 
-    private void handleTileClearance(Enemy enemy)
+    private void handleTileClearance(Point location)
     {
         GameTile[][] boardMatrix = gameBoard.getBoard();
         int x = attacker.getLocation().getX();
@@ -148,16 +150,22 @@ public class AttackAction implements UnitVisitor {
             }
             case 's':
             {
-                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
-                boardMatrix[y+1][x]=new GameTile('@',attacker,new Point(x,y+1));
-                attacker.setLocation(new Point(x,y+1));
+                boardMatrix[y][x] = new GameTile('.', null, new Point(x,y));
+                boardMatrix[y + 1][x] = new GameTile('@', attacker, new Point(x, y + 1));
+                attacker.setLocation(new Point(x,y + 1));
                 break;
             }
             case 'd':
             {
-                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
-                boardMatrix[y][x+1]=new GameTile('@',attacker,new Point(x+1,y));
-                attacker.setLocation(new Point(x+1,y));
+                boardMatrix[y][x] = new GameTile('.', null, new Point(x,y));
+                boardMatrix[y][x + 1] = new GameTile('@', attacker, new Point(x + 1, y));
+                attacker.setLocation(new Point(x + 1, y));
+                break;
+            }
+            case 'e':
+            {
+                boardMatrix[location.getY()][location.getY()] =
+                        new GameTile('.', null, location);
                 break;
             }
             default:

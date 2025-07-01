@@ -1,6 +1,7 @@
 package EnemyTypes;
 
 import BoardLogic.GameBoardCallback;
+import BoardLogic.Point;
 import Player_Types.HeroicUnit;
 import Unit_Logic.UnitVisitor;
 
@@ -33,17 +34,18 @@ public class Boss extends Monster implements HeroicUnit {
 
     // Abstract Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitBoss(this, false); }
+    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitBoss(this, null); }
 
     @Override
-    public void castAbility() {
+    public boolean castAbility(Point location) {
         if (combatTicks < abilityFrequency) {
             setCombatTicks(combatTicks++);
-            return;
+            return false;
         }
 
         combatTicks = 0;
-        callback.enemyAttack(this);
+        callback.enemyAttack(this, location);
+        return true;
     }
 
     @Override

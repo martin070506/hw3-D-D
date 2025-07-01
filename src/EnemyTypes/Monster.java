@@ -27,9 +27,8 @@ public class Monster extends Enemy {
     // Setters
     public void setVisionRange(int visionRange) { this.visionRange = visionRange; }
 
-
     // Abstract Methods
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMonster(this); }
+    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMonster(this, null); }
 
 
     // Other Methods

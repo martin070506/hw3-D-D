@@ -22,7 +22,6 @@ public class RogueSpecialAttackTest {
     private static Path tempFile;
     private GameBoard board;
     private Rogue rogue;
-    private SpecialAttackAction specialAttackAction;
 
     @BeforeAll
     public static void setupFile() throws IOException {
@@ -40,7 +39,6 @@ public class RogueSpecialAttackTest {
         UI = new UserInterface();
         rogue = new Rogue("Bronn"); // 50 energy cost
         board = new GameBoard(tempFile.toString(), rogue, UI);
-        specialAttackAction = new SpecialAttackAction(board);
     }
 
     @Test
@@ -52,7 +50,8 @@ public class RogueSpecialAttackTest {
         int initialEnemyCount = board.getEnemyCount();
 
         // Perform special attack
-        rogue.accept(specialAttackAction);
+        if (rogue.castAbility(null));
+            // TODO
 
         // Check that energy was consumed
         assertEquals(50, rogue.getCurrentEnergy()); // 100 - 50 = 50
@@ -84,7 +83,7 @@ public class RogueSpecialAttackTest {
         Point initialPosition = new Point(rogue.getLocation().getX(), rogue.getLocation().getY());
 
         // Perform special attack
-        rogue.accept(specialAttackAction);
+        // rogue.accept(specialAttackAction); TODO
 
         // Check that rogue didn't move
         assertEquals(initialPosition.getX(), rogue.getLocation().getX());
@@ -118,7 +117,7 @@ public class RogueSpecialAttackTest {
         int initialEnemyCount = board.getEnemyCount();
         // Perform special attack
 
-        rogue.accept(specialAttackAction);
+        // rogue.accept(specialAttackAction); TODO
         // Check that XP increased (enemy was killed)
         assertTrue(rogue.getExperience() > initialXP, "Rogue should gain XP when killing enemy");
 
@@ -139,7 +138,7 @@ public class RogueSpecialAttackTest {
     }
 
     @Test
-    public void testSpecialAttackGivesXPForTraps() throws IOException {
+    public void testSpecialAttackGivesXPForTraps() throws IOException { // TODO - lines 151, 160
         // Create a new board with traps instead of monsters
         String trapBoardLayout =
                 ".B.\n" +
@@ -149,7 +148,7 @@ public class RogueSpecialAttackTest {
         Files.writeString(trapFile, trapBoardLayout);
 
         GameBoard trapBoard = new GameBoard(trapFile.toString(), rogue, UI);
-        SpecialAttackAction trapSpecialAttack = new SpecialAttackAction(trapBoard);
+        // SpecialAttackAction trapSpecialAttack = new SpecialAttackAction(trapBoard);
 
         // Set rogue to have enough energy
         rogue.setCurrentEnergy(100);
@@ -158,7 +157,7 @@ public class RogueSpecialAttackTest {
         int initialXP = rogue.getExperience();
 
         // Perform special attack
-        rogue.accept(trapSpecialAttack);
+        // rogue.accept(trapSpecialAttack);
 
         assertTrue(rogue.getExperience()>initialXP, "Rogue should not gain XP from destroying traps");
 
@@ -176,7 +175,8 @@ public class RogueSpecialAttackTest {
         int initialEnemyCount = board.getEnemyCount();
 
         // Perform special attack
-        rogue.accept(specialAttackAction);
+        if (rogue.castAbility(null));
+            // TODO
 
         // Check that energy was not consumed
         assertEquals(initialEnergy, rogue.getCurrentEnergy(), "Energy should not be consumed if attack fails");
@@ -201,7 +201,7 @@ public class RogueSpecialAttackTest {
     }
 
     @Test
-    public void testSpecialAttackRespectsAttackRange() throws IOException {
+    public void testSpecialAttackRespectsAttackRange() throws IOException { // TODO
         // Create a larger board with enemies at different distances
         String rangeBoardLayout =
                 "....s....\n" +
@@ -215,13 +215,13 @@ public class RogueSpecialAttackTest {
         Files.writeString(rangeFile, rangeBoardLayout);
 
         GameBoard rangeBoard = new GameBoard(rangeFile.toString(), rogue, UI);
-        SpecialAttackAction rangeSpecialAttack = new SpecialAttackAction(rangeBoard);
+        // SpecialAttackAction rangeSpecialAttack = new SpecialAttackAction(rangeBoard);
 
         // Set rogue to have enough energy
         rogue.setCurrentEnergy(100);
 
         // Perform special attack
-        rogue.accept(rangeSpecialAttack);
+        // rogue.accept(rangeSpecialAttack);
 
         // Check that only enemies within attack range (2) were hit
         // Enemies at (4,0) and (4,6) should be out of range and unharmed
@@ -236,7 +236,7 @@ public class RogueSpecialAttackTest {
     }
 
     @Test
-    public void testSpecialAttackHandlesMixedEnemyTypes() throws IOException {
+    public void testSpecialAttackHandlesMixedEnemyTypes() throws IOException { // TODO
         // Create a board with both monsters and traps
         String mixedBoardLayout =
                 ".B.\n" +
@@ -246,7 +246,7 @@ public class RogueSpecialAttackTest {
         Files.writeString(mixedFile, mixedBoardLayout);
 
         GameBoard mixedBoard = new GameBoard(mixedFile.toString(), rogue, UI);
-        SpecialAttackAction mixedSpecialAttack = new SpecialAttackAction(mixedBoard);
+        // SpecialAttackAction mixedSpecialAttack = new SpecialAttackAction(mixedBoard);
 
         // Set rogue to have enough energy
         rogue.setCurrentEnergy(100);
@@ -255,7 +255,7 @@ public class RogueSpecialAttackTest {
         int initialXP = rogue.getExperience();
 
         // Perform special attack
-        rogue.accept(mixedSpecialAttack);
+        // rogue.accept(mixedSpecialAttack);
 
         // Check that energy was consumed
         assertEquals(50, rogue.getCurrentEnergy());

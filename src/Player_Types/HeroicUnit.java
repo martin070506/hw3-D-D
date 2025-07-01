@@ -1,5 +1,7 @@
 package Player_Types;
 
+import BoardLogic.Point;
+
 public interface HeroicUnit {
-    void castAbility();
+    boolean castAbility(Point location);
 }

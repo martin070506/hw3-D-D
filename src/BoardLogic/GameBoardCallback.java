@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public interface GameBoardCallback {
     AttackAction playerAttack(Player player, char direction);
-    void enemyAttack(Enemy enemy);
+    void enemyAttack(Enemy enemy, Point location);
     ArrayList<Unit> getEnemiesInRange(Point point, int distance);
     void endGame();
 }
