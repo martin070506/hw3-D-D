@@ -1,7 +1,10 @@
 package Player_Types;
 
-import BoardLogic.GameBoard;
+import EnemyTypes.Enemy;
+import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
+
+import java.util.ArrayList;
 
 public class Rogue extends Player {
     /// Fields
@@ -58,9 +61,19 @@ public class Rogue extends Player {
         this.abilityCost = abilityCost;
     }
 
-    // Abstract Methods
+    // Override Methods
     @Override
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitRogue(this); }
+
+    @Override
+    public void castAbility(){
+        if (currentEnergy < abilityCost)
+            return;
+        currentEnergy -= abilityCost;
+        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        for (Unit enemy : enemyList)
+            enemy.accept(getCallback().playerAttack(this, 'e'));
+    }
 
     // Other Methods
     private static int[] getRogueStat(String name) {

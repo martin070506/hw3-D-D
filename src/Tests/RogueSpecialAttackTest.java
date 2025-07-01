@@ -1,8 +1,6 @@
 package Tests;
 
-import Actions.SpecialAttackAction;
 import BoardLogic.GameBoard;
-import BoardLogic.GameTile;
 import BoardLogic.Point;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;

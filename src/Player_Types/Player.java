@@ -5,7 +5,7 @@ import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
-public abstract class Player extends Unit {
+public abstract class Player extends Unit implements HeroicUnit {
     /// Fields
     private GameBoardCallback callback;
     private Point location; // TODO not being used, and has getter
@@ -27,6 +27,7 @@ public abstract class Player extends Unit {
 
     /// Methods
     // Getters
+    public GameBoardCallback getCallback() { return callback; }
     public Point getLocation() { return location; }
     public int getExperience() { return experience; }
     public int getLevel() { return level; }
@@ -40,6 +41,7 @@ public abstract class Player extends Unit {
 
     // Abstract Methods
     public abstract void accept(UnitVisitor unitVisitor);
+    public abstract void castAbility();
 
     // Other Methods
     @Override

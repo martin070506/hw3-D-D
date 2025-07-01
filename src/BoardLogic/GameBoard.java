@@ -1,6 +1,7 @@
 package BoardLogic;
+import Actions.AttackAction;
 import Actions.MoveAction;
-import Actions.SpecialAttackAction;
+import EnemyTypes.Enemy;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.*;
@@ -10,16 +11,18 @@ import Unit_Logic.Unit;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+
 
 public class GameBoard implements GameBoardCallback {
     /// Fields
     private GameTile[][] board;
     private final Player player;
     private int enemyCount;
-    private UserInterfaceCallback callback;
+    private final UserInterfaceCallback callback;
 
 
 
@@ -66,14 +69,39 @@ public class GameBoard implements GameBoardCallback {
     public UserInterfaceCallback getCallback() { return callback; }
 
     // Setters
-    public void setCallback(UserInterfaceCallback callback) { this.callback = callback; }
     public void setEnemyCount(int enemyCount) { this.enemyCount=enemyCount; }
 
-    // Abstract Methods
+    // Override Methods
     @Override
     public void endGame() {
         board[player.getLocation().getX()][player.getLocation().getY()].setType('X');
         callback.endGame();
+    }
+
+    @Override
+    public ArrayList<Unit> getEnemiesInRange(Point point, int distance){
+
+        ArrayList<Unit> enemyList = new ArrayList<>();
+        for (int y = Math.max(point.getY() - distance, 0);
+             y <= Math.min(point.getY() + distance, getHeight() - 1); y++)
+            for (int x = Math.max(point.getX() - distance, 0);
+                 x <= Math.min(point.getX() + distance, getWidth() - 1); x++)
+                if (board[y][x].getUnit() != null &&
+                        !point.equals(player.getLocation()) &&
+                        point.distance(player.getLocation()) <= distance)
+                    enemyList.add(board[y][x].getUnit());
+
+        return enemyList;
+    }
+
+    @Override
+    public AttackAction playerAttack(Player player, char direction){
+        return new AttackAction(player, this, direction);
+    }
+
+    @Override
+    public void enemyAttack(Enemy enemy) {
+        player.accept(new AttackAction(enemy, callback));
     }
 
     // Other Methods
@@ -89,7 +117,7 @@ public class GameBoard implements GameBoardCallback {
                 player.accept(new MoveAction(input.charAt(0), this));
                 break;
             case 'e':
-                player.accept(new SpecialAttackAction(this));
+                player.castAbility();
                 break;
             case 'q':
                 break;
@@ -266,9 +294,6 @@ public class GameBoard implements GameBoardCallback {
 
     public int getHeight(){ return this.board.length; }
     public int getWidth(){ return this.board[0].length; }
-
-    public boolean isLegalTileLocationX(int x) { return x >= 0 && x < board[0].length; }
-    public boolean isLegalTileLocationY(int y) { return y >= 0 && y < board.length; }
 
     @Override
     public String toString() {

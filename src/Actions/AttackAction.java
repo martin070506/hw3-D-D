@@ -3,6 +3,7 @@ package Actions;
 import BoardLogic.GameBoard;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
+import EnemyTypes.Boss;
 import EnemyTypes.Enemy;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
@@ -55,6 +56,9 @@ public class AttackAction implements UnitVisitor {
 
     @Override
     public void visitTrap(Trap trap) { visitEnemy(trap); }
+
+    @Override
+    public void visitBoss(Boss boss, boolean active) { visitEnemy(boss); }
 
     private void visitPlayer(Player player){
         engaged(enemyAttacker, player);
@@ -119,6 +123,7 @@ public class AttackAction implements UnitVisitor {
             attacker.setDefense(attacker.getDefense() + (attacker.getLevel()));
         }
     }
+
     private void handleTileClearance(Enemy enemy)
     {
         GameTile[][] boardMatrix = gameBoard.getBoard();

@@ -1,6 +1,5 @@
 package Tests;
 
-import Actions.SpecialAttackAction;
 import BoardLogic.GameBoard;
 import BoardLogic.GameTile;
 import BoardLogic.Point;
