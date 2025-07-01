@@ -54,29 +54,40 @@ public class AttackAction implements UnitVisitor {
     }
 
     @Override
-    public void visitMonster(Monster monster, Point location) { visitEnemy(monster, location); }
+    public void visitMonster(Monster monster, Point location, boolean ability) { visitEnemy(monster, location, ability); }
 
     @Override
-    public void visitTrap(Trap trap, Point location) { visitEnemy(trap, location); }
+    public void visitTrap(Trap trap, Point location, boolean ability) { visitEnemy(trap, location, ability); }
 
     @Override
-    public void visitBoss(Boss boss, Point location) { visitEnemy(boss, location); }
+    public void visitBoss(Boss boss, Point location, boolean ability) { visitEnemy(boss, location, ability); }
 
     private void visitPlayer(Player player){
         engaged(enemyAttacker, player);
         int attack = rollAttack(enemyAttacker.getName(), enemyAttacker.getAttack());
         int defense = rollDefense(player.getName(), player.getDefense());
-        dealDamage(enemyAttacker, player, attack - defense);
+        dealDamage(enemyAttacker, player, attack - defense, false);
         // Death of player handled in setHealth in Player
     }
 
-    private void visitEnemy(Enemy enemy, Point location){
-        engaged(attacker, enemy);
-        int attack = rollAttack(attacker.getName(), attacker.getAttack());
-        int defense = rollDefense(enemy.getName(), enemy.getDefense());
-        dealDamage(attacker, enemy, attack - defense);
-        if (enemy.getHealth() == 0) // The setHealth take care in negative values
+    private void visitEnemy(Enemy enemy, Point location, boolean ability){
+        int attack = 0;
+        int defense = 0;
+        if (!ability) {
+            engaged(attacker, enemy);
+            attack = rollAttack(attacker.getName(), attacker.getAttack());
+            defense = rollDefense(enemy.getName(), enemy.getDefense());
+        }
+        else {
+            attack = attacker.attackAbility();
+            defense = rollDefense(enemy.getName(), enemy.getDefense());
+        }
+        dealDamage(attacker, enemy, attack - defense, ability);
+        if (enemy.getHealth() == 0) {
+            callback.update(enemy.getName() + " died. " + attacker.getName() + " gained " +
+                    enemy.getXP() + " experience.\n");
             handleDeathOfEnemy(enemy, location);
+        }
     }
 
     private void engaged(Unit attacker, Unit defender){
@@ -99,10 +110,13 @@ public class AttackAction implements UnitVisitor {
         return points;
     }
 
-    private void dealDamage(Unit attacker, Unit defender, int damage) {
+    private void dealDamage(Unit attacker, Unit defender, int damage, boolean ability) {
         if (damage < 0)
             damage = 0;
-        callback.update(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + ".\n");
+        if (ability)
+            callback.update(attacker.getName() + " hit " + defender.getName() + " for " + damage + " ability damage.\n");
+        else
+            callback.update(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + ".\n");
         defender.takeDamage(damage);
     }
 
@@ -164,7 +178,7 @@ public class AttackAction implements UnitVisitor {
             }
             case 'e':
             {
-                boardMatrix[location.getY()][location.getY()] =
+                boardMatrix[location.getY()][location.getX()] =
                         new GameTile('.', null, location);
                 break;
             }

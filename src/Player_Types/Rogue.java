@@ -1,5 +1,6 @@
 package Player_Types;
 
+import Actions.MoveAction;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -55,6 +56,10 @@ public class Rogue extends Player {
         this.maxEnergy = maxEnergy;
     }
     public void setCurrentEnergy(int currentEnergy) {
+        if (currentEnergy < 100)
+            currentEnergy = 100;
+        if (currentEnergy > maxEnergy)
+            currentEnergy = maxEnergy;
         this.currentEnergy = currentEnergy;
     }
     public void setAbilityCost(int abilityCost) {
@@ -63,7 +68,7 @@ public class Rogue extends Player {
 
     // Override Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitRogue(this); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitRogue(this); }
 
     @Override
     public boolean castAbility(Point location){
@@ -73,13 +78,17 @@ public class Rogue extends Player {
         int level = getLevel();
         currentEnergy -= abilityCost;
         ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        getCallback().update(getName() + " cast Fan of Knives.\n");
         for (Unit enemy : enemyList)
-            enemy.accept(getCallback().playerAttack(this, 'e'));
-        if (level != getLevel());
-            // TODO something
+            enemy.accept(getCallback().playerAttack(this, 'e'), true);
+        if (level != getLevel())
+            MoveAction.handleRogueLevelUp(this, level, getLevel());
 
         return true;
     }
+
+    @Override
+    public int attackAbility() { return getAttack(); }
 
     // Other Methods
     private static int[] getRogueStat(String name) {

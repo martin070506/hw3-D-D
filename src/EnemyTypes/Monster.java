@@ -25,7 +25,7 @@ public class Monster extends Enemy {
     public int getVisionRange() { return visionRange; }
 
     // Abstract Methods
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMonster(this, null); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitMonster(this, null, ability); }
 
 
     // Other Methods

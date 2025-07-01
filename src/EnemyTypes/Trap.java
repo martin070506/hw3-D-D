@@ -31,7 +31,7 @@ public class Trap extends Enemy{
     public int getTicks() { return ticksCount; }
 
     // Abstract Methods
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitTrap(this, null); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitTrap(this, null, ability); }
 
     // Other Methods
     private static int[] getTrapStat(String name) {
@@ -47,10 +47,11 @@ public class Trap extends Enemy{
     public boolean isVisible() { return visible; }
 
     public void increaseTick() {
-        ticksCount++;
         visible = ticksCount < visibilityTime;
 
         if (ticksCount == visibilityTime + invisibilityTime)
             ticksCount = 0;
+        else
+            ticksCount++;
     }
 }

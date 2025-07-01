@@ -50,7 +50,7 @@ public class GameTile {
     @Override
     public String toString() {
 
-        if (Set.of('B', 'Q', 'D').contains(type) && !((Trap) unit).isVisible()) // TODO override in some way
+        if (Set.of('B', 'Q', 'D').contains(type) && !((Trap) unit).isVisible())
             return ".";
         return type + "";
     }

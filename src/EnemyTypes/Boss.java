@@ -34,7 +34,7 @@ public class Boss extends Monster implements HeroicUnit {
 
     // Abstract Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitBoss(this, null); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitBoss(this, null, ability); }
 
     @Override
     public boolean castAbility(Point location) {

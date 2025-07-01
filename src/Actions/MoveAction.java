@@ -51,29 +51,31 @@ public class MoveAction implements UnitVisitor {
         warrior.setRemainingCooldown(warrior.getRemainingCooldown() - 1);
         int newLevel = warrior.getLevel();
         if (newLevel > initialLevel)
-            HandleLevelUpWarrior(warrior);
+            handleLevelUpWarrior(warrior, initialLevel, newLevel);
     }
 
     @Override
     public void visitMage(Mage mage) {
         int initialLevel = mage.getLevel();
+        mage.setCurrentMana(mage.getCurrentMana() + 1);
         visitPlayer(mage);
         int newLevel = mage.getLevel();
         if (newLevel > initialLevel)
-            HandleLevelUpMage(mage);
+            handleLevelUpMage(mage, initialLevel, newLevel);
     }
 
     @Override
     public void visitRogue(Rogue rogue) {
         int initialLevel = rogue.getLevel();
+        rogue.setCurrentEnergy(rogue.getCurrentEnergy() + 10);
         visitPlayer(rogue);
         int newLevel = rogue.getLevel();
         if (newLevel > initialLevel)
-            HandleRogueLevelUp(rogue);
+            handleRogueLevelUp(rogue, initialLevel, newLevel);
     }
 
     @Override
-    public void visitMonster(Monster monster, Point location) {
+    public void visitMonster(Monster monster, Point location, boolean ability) {
 
         if (!playerInRange(monster)) {
             moveRandom(monster);
@@ -99,22 +101,22 @@ public class MoveAction implements UnitVisitor {
     }
 
     @Override
-    public void visitTrap(Trap trap, Point location) {
+    public void visitTrap(Trap trap, Point location, boolean ability) {
         trap.increaseTick();
 
         if (player.getLocation().distance(enemyLocation) < 2.0)
-            player.accept(new AttackAction(trap, enemyLocation, callback));
+            player.accept(new AttackAction(trap, enemyLocation, callback), false);
     }
 
     @Override
-    public void visitBoss(Boss boss, Point location) {
+    public void visitBoss(Boss boss, Point location, boolean ability) {
         if (!playerInRange(boss)){
             moveRandom(boss);
             return;
         }
 
         if (!boss.castAbility(enemyLocation))
-            visitMonster(boss, location);
+            visitMonster(boss, location, false);
     }
 
     private void visitPlayer(Player player)
@@ -163,44 +165,50 @@ public class MoveAction implements UnitVisitor {
             {
                 case 'w':
                     defender= boardMatrix[originalY - 1][originalX].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'w'));
+                    defender.accept(new AttackAction(player, originalGameBoard, 'w'), false);
                     break;
                 case 'a':
                     defender = boardMatrix[originalY][originalX - 1].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'a'));
+                    defender.accept(new AttackAction(player, originalGameBoard, 'a'), false);
                     break;
                 case 's':
                     defender = boardMatrix[originalY + 1][originalX].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 's'));
+                    defender.accept(new AttackAction(player, originalGameBoard, 's'), false);
                     break;
                 case 'd':
                     defender = boardMatrix[originalY][originalX + 1].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'd'));
+                    defender.accept(new AttackAction(player, originalGameBoard, 'd'), false);
                     break;
             }
         }
     }
 
-    private void HandleLevelUpWarrior(Warrior warrior) {
+    public static void handleLevelUpWarrior(Warrior warrior, int initialLevel, int newLevel) {
         warrior.setRemainingCooldown(0);
-        warrior.setMaxHealth(warrior.getMaxHealth() + 5 * warrior.getLevel());
-        warrior.setHealth(warrior.getMaxHealth());
-        warrior.setAttack(warrior.getAttack() + 2 * warrior.getAttack());
-        warrior.setDefense(warrior.getDefense() + warrior.getDefense());
+        for (int i = initialLevel; i < newLevel; i++) {
+            warrior.setMaxHealth(warrior.getMaxHealth() + 5 * i);
+            warrior.setHealth(warrior.getMaxHealth());
+            warrior.setAttack(warrior.getAttack() + 2 * i);
+            warrior.setDefense(warrior.getDefense() + i);
+        }
     }
 
-    private void HandleLevelUpMage(Mage mage)
+    public static void handleLevelUpMage(Mage mage, int initialLevel, int newLevel)
     {
-        mage.setManaPool(mage.getManaPool() + (25 * mage.getLevel()));
-        mage.setCurrentMana(Math.min((int)(mage.getCurrentMana() + (mage.getManaPool() / 4)),
-                mage.getManaPool()));
-        mage.setSpellPower(mage.getSpellPower() + 10 * mage.getLevel());
+        for (int i = initialLevel; i < newLevel; i++) {
+            mage.setManaPool(mage.getManaPool() + (25 * i));
+            mage.setCurrentMana(Math.min((int) (mage.getCurrentMana() + (mage.getManaPool() / 4)),
+                    mage.getManaPool()));
+            mage.setSpellPower(mage.getSpellPower() + 10 * i);
+        }
     }
 
-    private void HandleRogueLevelUp(Rogue rogue)
+    public static void handleRogueLevelUp(Rogue rogue, int initialLevel, int newLevel)
     {
-        rogue.setCurrentEnergy(100);
-        rogue.setAttack(rogue.getAttack() + (3 * rogue.getLevel()));
+        for (int i = initialLevel; i < newLevel; i++) {
+            rogue.setCurrentEnergy(100);
+            rogue.setAttack(rogue.getAttack() + (3 * i));
+        }
     }
 
     private boolean playerInRange(Monster monster)  { return softRange(monster) && hardRange(monster); }
@@ -248,7 +256,7 @@ public class MoveAction implements UnitVisitor {
         }
 
         if (player.getLocation().equals(destination)) {
-            player.accept(new AttackAction(monster, enemyLocation, callback));
+            player.accept(new AttackAction(monster, enemyLocation, callback), false);
             newGameBoard.getBoard()[location.getY()][location.getX()] = new GameTile(enemyType,
                     monster, new Point(location.getX(), location.getY()));
             return;
@@ -258,7 +266,6 @@ public class MoveAction implements UnitVisitor {
                 monster, new Point(destination.getX(), destination.getY()));
         newGameBoard.getBoard()[enemyLocation.getY()][enemyLocation.getX()] = new GameTile('.',
                 null, new Point(enemyLocation.getX(), enemyLocation.getY()));
-        enemyLocation = new Point(destination.getX(), destination.getY()); // TODO check
     }
 
     private boolean isLegalMonsterMove(Point destination)

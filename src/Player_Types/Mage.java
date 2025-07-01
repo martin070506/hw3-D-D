@@ -1,5 +1,6 @@
 package Player_Types;
 
+import Actions.MoveAction;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -53,8 +54,8 @@ public class Mage extends Player   {
     public void setAttackRange(int attackRange) { this.attackRange = attackRange; }
     public void setManaPool(int manaPool) { this.manaPool = manaPool; }
     public void setCurrentMana(int currentMana) {
-        if (currentMana < 0)
-            throw new IllegalArgumentException("Current mana is negative");
+        if (currentMana > manaPool)
+            currentMana = manaPool;
         this.currentMana = currentMana;
     }
     public void setManaCost(int manaCost) { this.manaCost = manaCost; }
@@ -63,7 +64,7 @@ public class Mage extends Player   {
 
     // Override Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitMage(this); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitMage(this); }
 
     @Override
     public boolean castAbility(Point location){
@@ -74,14 +75,15 @@ public class Mage extends Player   {
         Random rand = new Random();
         currentMana -= manaCost;
         ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        getCallback().update(getName() + " cast Blizzard.\n");
         for (int hits = 0; hits < maxSpecialAbilityHits && !enemyList.isEmpty(); hits++)
         {
             int random = rand.nextInt(enemyList.size());
-            enemyList.get(random).accept(getCallback().playerAttack(this, 'e'));
+            enemyList.get(random).accept(getCallback().playerAttack(this, 'e'), true);
             enemyList.remove(random);
         }
-        if (level != getLevel());
-            // TODO something
+        if (level != getLevel())
+            MoveAction.handleLevelUpMage(this, level, getLevel());
 
         return true;
     }
@@ -92,6 +94,9 @@ public class Mage extends Player   {
                 "    Mana: " + getCurrentMana() + '/' + getManaPool() +
                 "    Spell Power: " + getSpellPower();
     }
+
+    @Override
+    public int attackAbility() { return spellPower; }
 
     // Other Methods
     private static int[] getMageStat(String name) {

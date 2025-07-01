@@ -59,6 +59,12 @@ public class GameBoard implements GameBoardCallback {
                 board[y][x] = new GameTile('.', null, new Point(x,y));
     }
 
+    public GameBoard(UserInterfaceCallback UI){
+        callback = UI;
+        player = null;
+    }
+
+
 
 
     /// Methods
@@ -74,7 +80,7 @@ public class GameBoard implements GameBoardCallback {
     // Override Methods
     @Override
     public void endGame() {
-        board[player.getLocation().getX()][player.getLocation().getY()].setType('X');
+        board[player.getLocation().getY()][player.getLocation().getX()].setType('X');
         callback.endGame();
     }
 
@@ -87,8 +93,8 @@ public class GameBoard implements GameBoardCallback {
             for (int x = Math.max(point.getX() - distance, 0);
                  x <= Math.min(point.getX() + distance, getWidth() - 1); x++)
                 if (board[y][x].getUnit() != null &&
-                        !point.equals(player.getLocation()) &&
-                        point.distance(player.getLocation()) <= distance)
+                        !point.equals(new Point(x,y)) &&
+                        point.distance(new Point(x,y)) <= distance)
                     enemyList.add(board[y][x].getUnit());
 
         return enemyList;
@@ -101,8 +107,11 @@ public class GameBoard implements GameBoardCallback {
 
     @Override
     public void enemyAttack(Enemy enemy, Point location) {
-        player.accept(new AttackAction(enemy, location, callback));
+        player.accept(new AttackAction(enemy, location, callback), false);
     }
+
+    @Override
+    public void update(String message) { callback.update(message); }
 
     // Other Methods
     public void nextTick(String input){
@@ -114,7 +123,7 @@ public class GameBoard implements GameBoardCallback {
             case 'a':
             case 's':
             case 'd':
-                player.accept(new MoveAction(input.charAt(0), this));
+                player.accept(new MoveAction(input.charAt(0), this), false);
                 break;
             case 'e':
                 player.castAbility(null);
@@ -128,10 +137,10 @@ public class GameBoard implements GameBoardCallback {
         GameBoard newGameBoard = temporaryGameBoard(this);
         for (int y = 0; y < getHeight(); y++)
             for (int x = 0; x < getWidth(); x++)
-                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[y][x].getType()) &&
+                if (!Set.of('@', '#', '.').contains(board[y][x].getType()) &&
                         board[y][x].getUnit() != null)
                     board[y][x].getUnit().accept(new MoveAction(player, new Point(x,y),
-                            board[y][x].getType(), this, newGameBoard));
+                            board[y][x].getType(), this, newGameBoard), false);
 
         board = newGameBoard.board;
         callback.update(toString());
@@ -260,7 +269,7 @@ public class GameBoard implements GameBoardCallback {
         };
     }
 
-    private Player choosePlayer()
+    public Player choosePlayer()
     {
         Scanner s = new Scanner(System.in);
         callback.update("Select Player :\n");
@@ -282,7 +291,7 @@ public class GameBoard implements GameBoardCallback {
         };
     }
 
-    public Player choosePlayer(String input)
+    private Player choosePlayer(String input)
     {
         return switch (input) {
             case "1" -> new Warrior("Jon Snow");

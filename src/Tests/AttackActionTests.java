@@ -44,7 +44,7 @@ public class AttackActionTests {
     public void testAttackKillsEnemy() {
         enemy.takeDamage(enemy.getHealth() - 1); // Leave 1 HP
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertTrue(enemy.getHealth() <= 0 || enemy.getHealth() == 1);
     }
 
@@ -52,7 +52,7 @@ public class AttackActionTests {
     public void testNoOverkill() {
         enemy.takeDamage(enemy.getHealth() - 2);
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertTrue(enemy.getHealth() >= 0 && enemy.getHealth() <= 2);
     }
 
@@ -61,7 +61,7 @@ public class AttackActionTests {
         int beforeXP = player.getExperience();
         enemy.takeDamage(enemy.getHealth() - 1);
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         int afterXP = player.getExperience();
         assertTrue(afterXP >= beforeXP); // could be same if kill didn't happen
     }
@@ -71,7 +71,7 @@ public class AttackActionTests {
         int before = board.getEnemyCount();
         enemy.takeDamage(enemy.getHealth() - 1);
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertTrue(board.getEnemyCount() <= before);
     }
 
@@ -79,7 +79,7 @@ public class AttackActionTests {
     public void testTileClearedOnEnemyDeath() {
         enemy.takeDamage(enemy.getHealth() - 1);
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         // player should move to enemy tile (0,1)
         assertEquals('@', board.getBoard()[0][1].getType());
         assertEquals(player, board.getBoard()[0][1].getUnit());
@@ -92,7 +92,7 @@ public class AttackActionTests {
         player.setExperience(49); // needs 1 XP to level up
         enemy.takeDamage(enemy.getHealth() - 1);
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertEquals(2, player.getLevel());
         assertEquals(player.getHealth(), player.getMaxHealth());
     }
@@ -101,7 +101,7 @@ public class AttackActionTests {
     public void testMultipleAttacksStillSafe() {
         AttackAction attackAction = new AttackAction(player, board, 'd');
         for (int i = 0; i < 10; i++)
-            enemy.accept(attackAction);
+            enemy.accept(attackAction, false);
 
         assertTrue(enemy.getHealth() >= 0);
     }
@@ -111,7 +111,7 @@ public class AttackActionTests {
         int beforeXP = player.getExperience();
         enemy.takeDamage(1); // not enough to kill
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertTrue(player.getExperience() >= beforeXP);
     }
 
@@ -119,7 +119,7 @@ public class AttackActionTests {
     public void testPlayerDoesNotMoveIfEnemySurvives() {
         enemy.takeDamage(1); // Still has health
         AttackAction attackAction = new AttackAction(player, board, 'd');
-        enemy.accept(attackAction);
+        enemy.accept(attackAction, false);
         assertEquals(0, player.getLocation().getX());
         assertEquals(0, player.getLocation().getY());
     }

@@ -1,5 +1,6 @@
 package Player_Types;
 
+import Actions.MoveAction;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -53,7 +54,7 @@ public class Warrior extends Player
 
     // Abstract Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitWarrior(this); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitWarrior(this); }
 
     @Override
     public boolean castAbility(Point location){
@@ -64,10 +65,12 @@ public class Warrior extends Player
         remainingCooldown = abilityCooldown;
         ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), 3);;
 
+        getCallback().update(getName() + " used Avenger's Shield, healing for " + 10 * getDefense() + ".\n");
+        setHealth(getHealth() + 10 * getDefense());
         if (!enemyList.isEmpty())
-            enemyList.get(new Random().nextInt(enemyList.size())).accept(getCallback().playerAttack(this, 'e'));
-        if (level != getLevel());
-            // TODO something
+            enemyList.get(new Random().nextInt(enemyList.size())).accept(getCallback().playerAttack(this, 'e'), true);
+        if (level != getLevel())
+            MoveAction.handleLevelUpWarrior(this, level, getLevel());
 
         return true;
     }
@@ -77,6 +80,9 @@ public class Warrior extends Player
         return super.toString() +
                 "    Cooldown: " + getRemainingCooldown() + '/' + getAbilityCooldown();
     }
+
+    @Override
+    public int attackAbility() { return (int) (0.1 * getMaxHealth()); }
 
     // Other Methods
     private static int[] getWarriorStat(String name) {

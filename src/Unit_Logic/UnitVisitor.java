@@ -12,7 +12,7 @@ public interface UnitVisitor {
     void visitMage(Mage mage);
     void visitRogue(Rogue rogue);
     void visitWarrior(Warrior warrior);
-    void visitMonster(Monster monster, Point location);
-    void visitTrap(Trap trap, Point location);
-    void visitBoss(Boss boss, Point location);
+    void visitMonster(Monster monster, Point location, boolean ability);
+    void visitTrap(Trap trap, Point location, boolean ability);
+    void visitBoss(Boss boss, Point location, boolean ability);
 }

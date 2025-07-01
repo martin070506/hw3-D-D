@@ -12,4 +12,5 @@ public interface GameBoardCallback {
     void enemyAttack(Enemy enemy, Point location);
     ArrayList<Unit> getEnemiesInRange(Point point, int distance);
     void endGame();
+    void update(String message);
 }
