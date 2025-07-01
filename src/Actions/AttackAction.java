@@ -116,7 +116,7 @@ public class AttackAction implements UnitVisitor {
     private void handleXP(Enemy enemy) {
 
         attacker.setExperience(attacker.getExperience() + enemy.getXP());
-        if (attacker.getExperience() >= (50 * attacker.getLevel())) {
+        while (attacker.getExperience() >= (50 * attacker.getLevel())) {
             attacker.setExperience(attacker.getExperience() - 50 * attacker.getLevel());
             attacker.setLevel(attacker.getLevel() + 1);
             attacker.setMaxHealth(attacker.getMaxHealth() + 10 * attacker.getLevel());

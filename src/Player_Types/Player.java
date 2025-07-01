@@ -38,12 +38,11 @@ public abstract class Player extends Unit implements HeroicUnit {
     public void setExperience(int experience) { this.experience = experience; }
     public void setLevel(int playerLevel) { this.level = playerLevel; }
 
-
     // Abstract Methods
     public abstract void accept(UnitVisitor unitVisitor);
     public abstract boolean castAbility(Point location);
 
-    // Other Methods
+    // Qverride Methods
     @Override
     public void takeDamage(int damage) {
         super.takeDamage(damage);

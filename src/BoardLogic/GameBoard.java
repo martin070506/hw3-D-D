@@ -54,9 +54,9 @@ public class GameBoard implements GameBoardCallback {
         board = new GameTile[length][width];
         this.player = player;
         player.setCallback(this);
-        for (int i = 0; i < length; i++)
-            for (int j = 0; j < width; j++)
-                board[i][j] = new GameTile('.', null, new Point(i,j));
+        for (int y = 0; y < length; y++)
+            for (int x = 0; x < width; x++)
+                board[y][x] = new GameTile('.', null, new Point(x,y));
     }
 
 
@@ -69,7 +69,7 @@ public class GameBoard implements GameBoardCallback {
     public UserInterfaceCallback getCallback() { return callback; }
 
     // Setters
-    public void setEnemyCount(int enemyCount) { this.enemyCount=enemyCount; }
+    public void setEnemyCount(int enemyCount) { this.enemyCount = enemyCount; }
 
     // Override Methods
     @Override
@@ -106,9 +106,9 @@ public class GameBoard implements GameBoardCallback {
 
     // Other Methods
     public void nextTick(String input){
-        if (input.length() != 1) {
+        if (input.length() != 1)
             return;
-        }
+
         switch (input.charAt(0)) {
             case 'w':
             case 'a':
@@ -126,11 +126,12 @@ public class GameBoard implements GameBoardCallback {
         }
         callback.update(player.toString() + '\n');
         GameBoard newGameBoard = temporaryGameBoard(this);
-        for (int i = 0; i < getHeight(); i++)
-            for (int j = 0; j < getWidth(); j++)
-                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType())&&board[i][j].getUnit()!=null)
-                    board[i][j].getUnit().accept(new MoveAction(player, new Point(j, i),
-                            board[i][j].getType(), this, newGameBoard));
+        for (int y = 0; y < getHeight(); y++)
+            for (int x = 0; x < getWidth(); x++)
+                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[y][x].getType()) &&
+                        board[y][x].getUnit() != null)
+                    board[y][x].getUnit().accept(new MoveAction(player, new Point(x,y),
+                            board[y][x].getType(), this, newGameBoard));
 
         board = newGameBoard.board;
         callback.update(toString());
@@ -148,12 +149,13 @@ public class GameBoard implements GameBoardCallback {
             for (int x = 0; x < width; x++) {
                 char type = line.charAt(x);
                 if (type == '@') {
-                    newBoard[y][x] = new GameTile(type, player, new Point(x, y));
-                    player.setLocation(new Point(x, y));
-                } else {
+                    newBoard[y][x] = new GameTile(type, player, new Point(x,y));
+                    player.setLocation(new Point(x,y));
+                }
+                else {
                     if (chooseUnitByType(type) != null)
                         enemyCount += 1;
-                    newBoard[y][x] = new GameTile(type, chooseUnitByType(type), new Point(x, y));
+                    newBoard[y][x] = new GameTile(type, chooseUnitByType(type), new Point(x,y));
                 }
             }
         }
@@ -163,11 +165,13 @@ public class GameBoard implements GameBoardCallback {
 
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
-        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth(), callback);
-        for (int i = 0; i < gameBoard.getHeight(); i++)
-            for (int j = 0; j < gameBoard.getWidth(); j++)
-                if (board[i][j]!=null&&Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
-                        newGameBoard.board[i][j] = gameBoard.board[i][j];
+        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(),
+                gameBoard.getWidth(), callback);
+        for (int y = 0; y < gameBoard.getHeight(); y++)
+            for (int x = 0; x < gameBoard.getWidth(); x++)
+                if (board[y][x] != null &&
+                        Set.of('@', '#', 'B', 'Q', 'D').contains(board[y][x].getType()))
+                        newGameBoard.board[y][x] = gameBoard.board[y][x];
 
         return newGameBoard;
     }
@@ -281,7 +285,7 @@ public class GameBoard implements GameBoardCallback {
     public Player choosePlayer(String input)
     {
         return switch (input) {
-            case "1" -> new Warrior("Jon snow");
+            case "1" -> new Warrior("Jon Snow");
             case "2" -> new Warrior("The Hound");
             case "3" -> new Mage("Melisandre");
             case "4" -> new Mage("Thoros of Myr");
@@ -300,7 +304,7 @@ public class GameBoard implements GameBoardCallback {
         for (GameTile[] row : board) {
             for (GameTile tile : row)
                 if(tile != null)
-                    sb.append(tile.getType());
+                    sb.append(tile);
             sb.append('\n');
         }
         return sb.toString();

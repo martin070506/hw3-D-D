@@ -52,5 +52,6 @@ public class GameTile {
 
         if (Set.of('B', 'Q', 'D').contains(type) && !((Trap) unit).isVisible()) // TODO override in some way
             return ".";
-        return type + ""; }
+        return type + "";
+    }
 }

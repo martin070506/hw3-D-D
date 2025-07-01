@@ -35,14 +35,15 @@ public class MoveAction implements UnitVisitor {
     public MoveAction(Player player, Point enemyLocation, char enemyType,
                       GameBoard originalGameBoard, GameBoard newGameBoard)
     {
-        this.enemyType = enemyType;
         this.player = player;
         this.enemyLocation = enemyLocation;
+        this.enemyType = enemyType;
         this.originalGameBoard = originalGameBoard;
         this.newGameBoard = newGameBoard;
         this.callback = originalGameBoard.getCallback();
         //this builder will be called when an enemy Moves, so the game can calculate where the enemy should go
     }
+
     @Override
     public void visitWarrior(Warrior warrior) {
         int initialLevel = warrior.getLevel();
@@ -93,9 +94,8 @@ public class MoveAction implements UnitVisitor {
             else moveY = -1;
         }
 
-        Point destination = new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY);
-        if (isLegalMonsterMove(destination))
-            moveMonster(monster, destination);
+        moveMonster(monster, new Point(enemyLocation.getX(), enemyLocation.getY()),
+                new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY));
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MoveAction implements UnitVisitor {
             return;
         }
 
-        if (!boss.castAbility(null))
+        if (!boss.castAbility(enemyLocation))
             visitMonster(boss, location);
     }
 
@@ -127,8 +127,10 @@ public class MoveAction implements UnitVisitor {
          * Creating different 2 IF Blocks to show diffrence between enemy step, and normal step
          * doing this instead of putting an if block in each switchCase
          * */
-        if (originalGameBoard.isLegalMove(directionKey) &&
-                !originalGameBoard.isLegalMoveAndUnitThere(directionKey))
+        if (!originalGameBoard.isLegalMove(directionKey))
+            return;
+
+        if (!originalGameBoard.isLegalMoveAndUnitThere(directionKey))
         {
             boardMatrix[originalY][originalX] = new GameTile('.', null,
                     new Point(originalX, originalY));
@@ -155,9 +157,7 @@ public class MoveAction implements UnitVisitor {
                     break;
             }
         }
-
-        if (originalGameBoard.isLegalMoveAndUnitThere(directionKey))
-        {
+        else {
             Unit defender;
             switch (directionKey)
             {
@@ -183,10 +183,10 @@ public class MoveAction implements UnitVisitor {
 
     private void HandleLevelUpWarrior(Warrior warrior) {
         warrior.setRemainingCooldown(0);
-        warrior.setMaxHealth(warrior.getMaxHealth() + (5 * warrior.getLevel()));
+        warrior.setMaxHealth(warrior.getMaxHealth() + 5 * warrior.getLevel());
         warrior.setHealth(warrior.getMaxHealth());
-        warrior.setAttack(warrior.getAttack() + (2 * warrior.getAttack()));
-        warrior.setDefense(warrior.getDefense() + (2 * warrior.getDefense()));
+        warrior.setAttack(warrior.getAttack() + 2 * warrior.getAttack());
+        warrior.setDefense(warrior.getDefense() + warrior.getDefense());
     }
 
     private void HandleLevelUpMage(Mage mage)
@@ -194,6 +194,7 @@ public class MoveAction implements UnitVisitor {
         mage.setManaPool(mage.getManaPool() + (25 * mage.getLevel()));
         mage.setCurrentMana(Math.min((int)(mage.getCurrentMana() + (mage.getManaPool() / 4)),
                 mage.getManaPool()));
+        mage.setSpellPower(mage.getSpellPower() + 10 * mage.getLevel());
     }
 
     private void HandleRogueLevelUp(Rogue rogue)
@@ -222,45 +223,54 @@ public class MoveAction implements UnitVisitor {
         int moveY = 0;
         switch ((int) (Math.random() * 4)) {
             case 0: // Move left
-                if (isLegalMonsterMove(new Point(enemyLocation.getX() - 1, enemyLocation.getY()))) moveX = -1;
+                moveX = -1;
                 break;
             case 1: // Move right
-                if (isLegalMonsterMove(new Point(enemyLocation.getX() + 1, enemyLocation.getY()))) moveX = 1;
+                moveX = 1;
                 break;
             case 2: // Move up
-                if (isLegalMonsterMove(new Point(enemyLocation.getX(), enemyLocation.getY() - 1))) moveY = -1;
+                moveY = -1;
                 break;
             case 3: // Move down
-                if (isLegalMonsterMove(new Point(enemyLocation.getX(), enemyLocation.getY() + 1))) moveY = 1;
+                moveY = 1;
                 break;
         }
-
         if (moveX + moveY != 0)
-            moveMonster(monster, new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY));
+            moveMonster(monster, new Point(enemyLocation.getX(), enemyLocation.getY()),
+                    new Point(enemyLocation.getX() + moveX, enemyLocation.getY() + moveY));
     }
 
-    private void moveMonster(Monster monster, Point destination) {
-        if (player.getLocation().equals(destination)) {
-            player.accept(new AttackAction(monster, enemyLocation, callback));
+    private void moveMonster(Monster monster, Point location, Point destination) {
+        if (!isLegalMonsterMove(destination)){
+            newGameBoard.getBoard()[location.getY()][location.getX()] = new GameTile(enemyType,
+                    monster, new Point(location.getX(), location.getY()));
             return;
         }
 
-        newGameBoard.getBoard()[destination.getY()][destination.getX()] = new GameTile(enemyType, monster,
-                new Point(destination.getX(), destination.getY()));
-        newGameBoard.getBoard()[enemyLocation.getY()][enemyLocation.getX()] = new GameTile('.', null,
-                new Point(enemyLocation.getX(), enemyLocation.getY()));
+        if (player.getLocation().equals(destination)) {
+            player.accept(new AttackAction(monster, enemyLocation, callback));
+            newGameBoard.getBoard()[location.getY()][location.getX()] = new GameTile(enemyType,
+                    monster, new Point(location.getX(), location.getY()));
+            return;
+        }
+
+        newGameBoard.getBoard()[destination.getY()][destination.getX()] = new GameTile(enemyType,
+                monster, new Point(destination.getX(), destination.getY()));
+        newGameBoard.getBoard()[enemyLocation.getY()][enemyLocation.getX()] = new GameTile('.',
+                null, new Point(enemyLocation.getX(), enemyLocation.getY()));
+        enemyLocation = new Point(destination.getX(), destination.getY()); // TODO check
     }
 
-    private boolean isLegalMonsterMove(Point monsterLocation)
+    private boolean isLegalMonsterMove(Point destination)
     {
-        if (monsterLocation.getX() >= originalGameBoard.getWidth() ||
-                monsterLocation.getX() < 0 ||
-                monsterLocation.getY() >= originalGameBoard.getHeight() ||
-                monsterLocation.getY() < 0)
+        if (destination.getX() >= originalGameBoard.getWidth() ||
+                destination.getX() < 0 ||
+                destination.getY() >= originalGameBoard.getHeight() ||
+                destination.getY() < 0)
             return false;
 
-        if (!Set.of('.','@').contains(originalGameBoard.getBoard()[monsterLocation.getY()][monsterLocation.getX()].getType()) &&
-                !Set.of('.','@').contains(newGameBoard.getBoard()[monsterLocation.getY()][monsterLocation.getX()].getType()))
+        if (!Set.of('.','@').contains(originalGameBoard.getBoard()[destination.getY()][destination.getX()].getType()) ||
+                !Set.of('.','@').contains(newGameBoard.getBoard()[destination.getY()][destination.getX()].getType()))
             return false;
 
         return true;

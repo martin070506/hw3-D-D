@@ -29,6 +29,7 @@ public class UserInterface implements UserInterfaceCallback {
 
         if (firstFile == null)
             throw new IOException("No .txt files found in folder: " + TXTFolderPath);
+
         this.gameOver = false;
     }
 
@@ -42,6 +43,8 @@ public class UserInterface implements UserInterfaceCallback {
 
     public void startLevel(String txtFilePath) throws IOException {
         gameBoard = new GameBoard(txtFilePath, this);
+        System.out.println(gameBoard.getPlayer());
+        System.out.println(gameBoard);
         while (!gameOver && gameBoard.getEnemyCount() > 0) {
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
