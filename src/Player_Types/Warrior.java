@@ -1,8 +1,9 @@
 package Player_Types;
 
 import Actions.MoveAction;
+import BoardLogic.GameBoard;
+import BoardLogic.GameTile;
 import BoardLogic.Point;
-import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
 
 import java.util.ArrayList;
@@ -63,12 +64,14 @@ public class Warrior extends Player
 
         int level = getLevel();
         remainingCooldown = abilityCooldown;
-        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), 3);;
+        ArrayList<GameTile> enemyTileList = getCallback().getTileEnemiesInRange(getLocation(), 3);;
 
         getCallback().update(getName() + " used Avenger's Shield, healing for " + 10 * getDefense() + ".\n");
         setHealth(getHealth() + 10 * getDefense());
-        if (!enemyList.isEmpty())
-            enemyList.get(new Random().nextInt(enemyList.size())).accept(getCallback().playerAttack(this, 'e'), true);
+        if (!enemyTileList.isEmpty()) {
+            GameTile enemyTile = enemyTileList.get(new Random().nextInt(enemyTileList.size()));
+            enemyTile.getUnit().accept(getCallback().playerAttack(this, 'e', enemyTile.getPosition()), true);
+        }
         if (level != getLevel())
             MoveAction.handleLevelUpWarrior(this, level, getLevel());
 

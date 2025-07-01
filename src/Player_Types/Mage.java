@@ -1,6 +1,7 @@
 package Player_Types;
 
 import Actions.MoveAction;
+import BoardLogic.GameTile;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -74,13 +75,14 @@ public class Mage extends Player   {
         int level = getLevel();
         Random rand = new Random();
         currentMana -= manaCost;
-        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        ArrayList<GameTile> enemyTileList = getCallback().getTileEnemiesInRange(getLocation(), attackRange);
         getCallback().update(getName() + " cast Blizzard.\n");
-        for (int hits = 0; hits < maxSpecialAbilityHits && !enemyList.isEmpty(); hits++)
+        for (int hits = 0; hits < maxSpecialAbilityHits && !enemyTileList.isEmpty(); hits++)
         {
-            int random = rand.nextInt(enemyList.size());
-            enemyList.get(random).accept(getCallback().playerAttack(this, 'e'), true);
-            enemyList.remove(random);
+            int random = rand.nextInt(enemyTileList.size());
+            GameTile enemyTile = enemyTileList.get(random);
+            enemyTile.getUnit().accept(getCallback().playerAttack(this, 'e', enemyTile.getPosition()), true);
+            enemyTileList.remove(random);
         }
         if (level != getLevel())
             MoveAction.handleLevelUpMage(this, level, getLevel());

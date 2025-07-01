@@ -85,9 +85,8 @@ public class GameBoard implements GameBoardCallback {
     }
 
     @Override
-    public ArrayList<Unit> getEnemiesInRange(Point point, int distance){
-
-        ArrayList<Unit> enemyList = new ArrayList<>();
+    public ArrayList<GameTile> getTileEnemiesInRange(Point point, int distance){
+        ArrayList<GameTile> enemyTileList = new ArrayList<>();
         for (int y = Math.max(point.getY() - distance, 0);
              y <= Math.min(point.getY() + distance, getHeight() - 1); y++)
             for (int x = Math.max(point.getX() - distance, 0);
@@ -95,14 +94,15 @@ public class GameBoard implements GameBoardCallback {
                 if (board[y][x].getUnit() != null &&
                         !point.equals(new Point(x,y)) &&
                         point.distance(new Point(x,y)) <= distance)
-                    enemyList.add(board[y][x].getUnit());
+                    enemyTileList.add(board[y][x]);
 
-        return enemyList;
+        return enemyTileList;
     }
 
+
     @Override
-    public AttackAction playerAttack(Player player, char direction){
-        return new AttackAction(player, this, direction);
+    public AttackAction playerAttack(Player player, char direction, Point loaction){
+        return new AttackAction(player, this, direction, loaction);
     }
 
     @Override
@@ -279,6 +279,7 @@ public class GameBoard implements GameBoardCallback {
         callback.update("4 - Thoros of Myr (Mage)     | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
         callback.update("5 - Arya Stark    (Rogue)    | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
         callback.update("6 - Bronn         (Rogue)    | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
+        callback.update("7 - Ygritte       (Hunter)   | Health: 220, Attack: 30, Defense: 2, Range: 6\n");
         String type = s.next();
         return switch (type) {
             case "1" -> choosePlayer("1");
@@ -287,6 +288,7 @@ public class GameBoard implements GameBoardCallback {
             case "4" -> choosePlayer("4");
             case "5" -> choosePlayer("5");
             case "6" -> choosePlayer("6");
+            case "7" -> choosePlayer("7");
             default -> choosePlayer(); // That the way they did in their example
         };
     }
@@ -300,6 +302,7 @@ public class GameBoard implements GameBoardCallback {
             case "4" -> new Mage("Thoros of Myr");
             case "5" -> new Rogue("Arya Stark");
             case "6" -> new Rogue("Bronn");
+            case "7" -> new Hunter("Ygritte");
             default -> throw new IllegalArgumentException("Invalid input");
         };
     }

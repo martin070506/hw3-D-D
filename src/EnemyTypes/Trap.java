@@ -31,7 +31,7 @@ public class Trap extends Enemy{
     public int getTicks() { return ticksCount; }
 
     // Abstract Methods
-    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitTrap(this, null, ability); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitTrap(this, ability); }
 
     // Other Methods
     private static int[] getTrapStat(String name) {

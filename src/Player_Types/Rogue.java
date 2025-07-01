@@ -1,6 +1,7 @@
 package Player_Types;
 
 import Actions.MoveAction;
+import BoardLogic.GameTile;
 import BoardLogic.Point;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -77,12 +78,12 @@ public class Rogue extends Player {
 
         int level = getLevel();
         currentEnergy -= abilityCost;
-        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        ArrayList<GameTile> enemyTileList = getCallback().getTileEnemiesInRange(getLocation(), attackRange);
         getCallback().update(getName() + " cast Fan of Knives.\n");
-        for (Unit enemy : enemyList)
-            enemy.accept(getCallback().playerAttack(this, 'e'), true);
+        for (GameTile enemyTile : enemyTileList)
+            enemyTile.getUnit().accept(getCallback().playerAttack(this, 'e', enemyTile.getPosition()), true);
         if (level != getLevel())
-            MoveAction.handleRogueLevelUp(this, level, getLevel());
+            MoveAction.handleLevelUpRogue(this, level, getLevel());
 
         return true;
     }

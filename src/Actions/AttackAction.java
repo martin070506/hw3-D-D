@@ -7,10 +7,7 @@ import EnemyTypes.Boss;
 import EnemyTypes.Enemy;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
-import Player_Types.Mage;
-import Player_Types.Player;
-import Player_Types.Rogue;
-import Player_Types.Warrior;
+import Player_Types.*;
 import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -27,12 +24,13 @@ public class AttackAction implements UnitVisitor {
     private final UserInterfaceCallback callback;
 
 
-    public AttackAction(Player attacker, GameBoard gameBoard, char directionKey)
+    public AttackAction(Player attacker, GameBoard gameBoard, char directionKey, Point location)
     {
         this.attacker = attacker;
         this.gameBoard = gameBoard;
         this.directionKey = directionKey;
         this.callback = gameBoard.getCallback();
+        this.location = location;
     }
 
     public AttackAction(Enemy attacker, Point location, UserInterfaceCallback callback)
@@ -53,14 +51,18 @@ public class AttackAction implements UnitVisitor {
         visitPlayer(rogue);
     }
 
-    @Override
-    public void visitMonster(Monster monster, Point location, boolean ability) { visitEnemy(monster, location, ability); }
+    public void visitHunter(Hunter hunter) {
+        visitPlayer(hunter);
+    }
 
     @Override
-    public void visitTrap(Trap trap, Point location, boolean ability) { visitEnemy(trap, location, ability); }
+    public void visitMonster(Monster monster, boolean ability) { visitEnemy(monster, location, ability); }
 
     @Override
-    public void visitBoss(Boss boss, Point location, boolean ability) { visitEnemy(boss, location, ability); }
+    public void visitTrap(Trap trap, boolean ability) { visitEnemy(trap, location, ability); }
+
+    @Override
+    public void visitBoss(Boss boss, boolean ability) { visitEnemy(boss, location, ability); }
 
     private void visitPlayer(Player player){
         engaged(enemyAttacker, player);

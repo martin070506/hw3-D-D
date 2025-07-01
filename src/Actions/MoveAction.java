@@ -6,10 +6,7 @@ import BoardLogic.Point;
 import EnemyTypes.Boss;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
-import Player_Types.Mage;
-import Player_Types.Player;
-import Player_Types.Rogue;
-import Player_Types.Warrior;
+import Player_Types.*;
 import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -44,6 +41,7 @@ public class MoveAction implements UnitVisitor {
         //this builder will be called when an enemy Moves, so the game can calculate where the enemy should go
     }
 
+
     @Override
     public void visitWarrior(Warrior warrior) {
         int initialLevel = warrior.getLevel();
@@ -71,11 +69,21 @@ public class MoveAction implements UnitVisitor {
         visitPlayer(rogue);
         int newLevel = rogue.getLevel();
         if (newLevel > initialLevel)
-            handleRogueLevelUp(rogue, initialLevel, newLevel);
+            handleLevelUpRogue(rogue, initialLevel, newLevel);
     }
 
     @Override
-    public void visitMonster(Monster monster, Point location, boolean ability) {
+    public void visitHunter(Hunter hunter) {
+        int initialLevel = hunter.getLevel();
+        hunter.updateTickCount();
+        visitPlayer(hunter);
+        int newLevel = hunter.getLevel();
+        if (newLevel > initialLevel)
+            handleLevelUpHunter(hunter, initialLevel, newLevel);
+    }
+
+    @Override
+    public void visitMonster(Monster monster, boolean ability) {
 
         if (!playerInRange(monster)) {
             moveRandom(monster);
@@ -101,7 +109,7 @@ public class MoveAction implements UnitVisitor {
     }
 
     @Override
-    public void visitTrap(Trap trap, Point location, boolean ability) {
+    public void visitTrap(Trap trap, boolean ability) {
         trap.increaseTick();
 
         if (player.getLocation().distance(enemyLocation) < 2.0)
@@ -109,14 +117,14 @@ public class MoveAction implements UnitVisitor {
     }
 
     @Override
-    public void visitBoss(Boss boss, Point location, boolean ability) {
+    public void visitBoss(Boss boss, boolean ability) {
         if (!playerInRange(boss)){
             moveRandom(boss);
             return;
         }
 
         if (!boss.castAbility(enemyLocation))
-            visitMonster(boss, location, false);
+            visitMonster(boss, false);
     }
 
     private void visitPlayer(Player player)
@@ -165,19 +173,19 @@ public class MoveAction implements UnitVisitor {
             {
                 case 'w':
                     defender= boardMatrix[originalY - 1][originalX].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'w'), false);
+                    defender.accept(new AttackAction(player, originalGameBoard, 'w', enemyLocation), false);
                     break;
                 case 'a':
                     defender = boardMatrix[originalY][originalX - 1].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'a'), false);
+                    defender.accept(new AttackAction(player, originalGameBoard, 'a', enemyLocation), false);
                     break;
                 case 's':
                     defender = boardMatrix[originalY + 1][originalX].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 's'), false);
+                    defender.accept(new AttackAction(player, originalGameBoard, 's', enemyLocation), false);
                     break;
                 case 'd':
                     defender = boardMatrix[originalY][originalX + 1].getUnit();
-                    defender.accept(new AttackAction(player, originalGameBoard, 'd'), false);
+                    defender.accept(new AttackAction(player, originalGameBoard, 'd', enemyLocation), false);
                     break;
             }
         }
@@ -203,11 +211,19 @@ public class MoveAction implements UnitVisitor {
         }
     }
 
-    public static void handleRogueLevelUp(Rogue rogue, int initialLevel, int newLevel)
+    public static void handleLevelUpRogue(Rogue rogue, int initialLevel, int newLevel)
     {
         for (int i = initialLevel; i < newLevel; i++) {
             rogue.setCurrentEnergy(100);
             rogue.setAttack(rogue.getAttack() + (3 * i));
+        }
+    }
+
+    public static void handleLevelUpHunter(Hunter hunter, int initialLevel, int newLevel) {
+        for (int i = initialLevel; i < newLevel; i++) {
+            hunter.setArrowsCount(hunter.getArrowsCount() + 10 * i);
+            hunter.setAttack(hunter.getAttack() + 2 * i);
+            hunter.setDefense(hunter.getDefense() + i);
         }
     }
 
