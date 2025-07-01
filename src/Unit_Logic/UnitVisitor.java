@@ -1,6 +1,6 @@
 package Unit_Logic;
 
-import EnemyTypes.Enemy;
+import EnemyTypes.Boss;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Mage;
@@ -13,4 +13,5 @@ public interface UnitVisitor {
     void visitWarrior(Warrior warrior);
     void visitMonster(Monster monster);
     void visitTrap(Trap trap);
+    void visitBoss(Boss boss, boolean active);
 }

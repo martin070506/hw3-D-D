@@ -1,7 +1,10 @@
 package Player_Types;
 
-import BoardLogic.GameBoard;
+import EnemyTypes.Enemy;
+import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
+
+import java.util.ArrayList;
 
 public class Rogue extends Player {
     /// Fields
@@ -13,14 +16,20 @@ public class Rogue extends Player {
 
 
     /// Constructors
-    public Rogue(String name, int maxHealth, int attack, int defense, int abilityCost)
+    public Rogue(String name)
     {
-        super(name, maxHealth, attack, defense);
+        this(name, getRogueStat(name));
         this.attackRange = 2;
         this.maxEnergy = 100;
-        this.currentEnergy = maxEnergy;
-        this.abilityCost = abilityCost;
+        currentEnergy = maxEnergy;
     }
+
+    private Rogue(String name, int[] stat)
+    {
+        super(name, stat[0], stat[1], stat[2]);
+        abilityCost = stat[3];
+    }
+
 
 
     /// Methods
@@ -52,11 +61,31 @@ public class Rogue extends Player {
         this.abilityCost = abilityCost;
     }
 
-    // Abstract Methods
+    // Override Methods
     @Override
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitRogue(this); }
 
+    @Override
+    public void castAbility(){
+        if (currentEnergy < abilityCost)
+            return;
+        currentEnergy -= abilityCost;
+        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), attackRange);
+        for (Unit enemy : enemyList)
+            enemy.accept(getCallback().playerAttack(this, 'e'));
+    }
+
     // Other Methods
+    private static int[] getRogueStat(String name) {
+        return switch (name) {
+            case "Arya Stark" -> new int[]{150, 40, 2, 20};
+            case "Bronn" -> new int[]{250, 35, 3, 50};
+
+            default -> throw new IllegalArgumentException("Unknown Rogue: " + name);
+        };
+    }
+
+
     @Override
     public String toString() {
         return super.toString() + "    Energy: " + getCurrentEnergy() + '/' + getMaxEnergy();

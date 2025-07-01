@@ -1,7 +1,11 @@
 package Player_Types;
 
-import BoardLogic.GameBoard;
+import EnemyTypes.Enemy;
+import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Warrior extends Player
 {
@@ -13,10 +17,14 @@ public class Warrior extends Player
 
 
     /// Constructors
-    public Warrior(String name, int maxHealth, int attack, int defense, int abilityCooldown)
+    public Warrior(String name)
     {
-        super(name, maxHealth, attack, defense);
-        this.abilityCooldown = abilityCooldown;
+        this(name, getWarriorStat(name));
+    }
+
+    private Warrior(String name, int[] stat){
+        super(name, stat[0], stat[1], stat[2]);
+        abilityCooldown = stat[3];
         specialAttackRange = 3;
         remainingCooldown = 0;
     }
@@ -47,10 +55,31 @@ public class Warrior extends Player
     @Override
     public void accept(UnitVisitor unitVisitor) { unitVisitor.visitWarrior(this); }
 
-    // Other Methods
+    @Override
+    public void castAbility(){
+        if (remainingCooldown > 0)
+            return;
+
+        remainingCooldown = abilityCooldown;
+        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), 3);;
+
+        if (!enemyList.isEmpty())
+            enemyList.get(new Random().nextInt(enemyList.size())).accept(getCallback().playerAttack(this, 'e'));
+    }
+
     @Override
     public String toString() {
         return super.toString() +
                 "    Cooldown: " + getRemainingCooldown() + '/' + getAbilityCooldown();
+    }
+
+    // Other Methods
+    private static int[] getWarriorStat(String name) {
+        return switch (name) {
+            case "Jon Snow" -> new int[]{300, 30, 3, 3};
+            case "The Hound" -> new int[]{400, 20, 6, 5};
+
+            default -> throw new IllegalArgumentException("Unknown Warrior: " + name);
+        };
     }
 }

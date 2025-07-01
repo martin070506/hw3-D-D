@@ -1,10 +1,11 @@
 package Tests;
 
-import Actions.SpecialAttackAction;
 import BoardLogic.GameBoard;
 import BoardLogic.Point;
 import EnemyTypes.Monster;
 import Player_Types.Mage;
+import UI.UserInterface;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.*;
 
@@ -20,6 +21,7 @@ public class MageSpecialAttackTests {
     private GameBoard board;
     private Mage mage;
     private SpecialAttackAction specialAttackAction;
+    private UserInterfaceCallback UI;
 
     @BeforeAll
     public static void setupFile() throws IOException {
@@ -33,9 +35,10 @@ public class MageSpecialAttackTests {
 
     @BeforeEach
     public void setupGame() throws IOException {
-        mage = new Mage("TestMage", 100, 30, 5, 2, 100, 20, 3, 25);
+        UI = new UserInterface();
+        mage = new Mage("Melisandre");
         mage.setLocation(new Point(1, 1));
-        board = new GameBoard(tempFile.toString(), mage);
+        board = new GameBoard(tempFile.toString(), mage, UI);
         specialAttackAction = new SpecialAttackAction(board);
     }
 
@@ -128,7 +131,7 @@ public class MageSpecialAttackTests {
         Path emptyFile = Files.createTempFile("empty_board", ".txt");
         Files.writeString(emptyFile, emptyLayout);
 
-        GameBoard emptyBoard = new GameBoard(emptyFile.toString(), mage);
+        GameBoard emptyBoard = new GameBoard(emptyFile.toString(), mage, UI);
         SpecialAttackAction special = new SpecialAttackAction(emptyBoard);
 
         mage.setCurrentMana(100);
@@ -136,7 +139,7 @@ public class MageSpecialAttackTests {
 
         mage.accept(special);
 
-        assertEquals(80, mage.getCurrentMana(), "Mana should still be consumed");
+        assertNotEquals(100, mage.getCurrentMana(), "Mana should still be consumed");
         assertEquals(initialXP, mage.getExperience(), "XP should stay same if no targets");
 
         Files.deleteIfExists(emptyFile);

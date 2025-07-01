@@ -1,12 +1,12 @@
 package Tests;
 
-import Actions.SpecialAttackAction;
 import BoardLogic.GameBoard;
-import BoardLogic.GameTile;
 import BoardLogic.Point;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Rogue;
+import UI.UserInterface;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.*;
 
@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RogueSpecialAttackTest {
 
+    private UserInterfaceCallback UI;
     private static Path tempFile;
     private GameBoard board;
     private Rogue rogue;
@@ -36,8 +37,9 @@ public class RogueSpecialAttackTest {
 
     @BeforeEach
     public void setupGame() throws IOException {
-        rogue = new Rogue("TestRogue", 100, 50, 5, 20); // 20 energy cost
-        board = new GameBoard(tempFile.toString(), rogue);
+        UI = new UserInterface();
+        rogue = new Rogue("Bronn"); // 50 energy cost
+        board = new GameBoard(tempFile.toString(), rogue, UI);
         specialAttackAction = new SpecialAttackAction(board);
     }
 
@@ -53,7 +55,7 @@ public class RogueSpecialAttackTest {
         rogue.accept(specialAttackAction);
 
         // Check that energy was consumed
-        assertEquals(80, rogue.getCurrentEnergy()); // 100 - 20 = 80
+        assertEquals(50, rogue.getCurrentEnergy()); // 100 - 50 = 50
 
         // Check that all enemies in range (attack range = 2) were hit
         // The board has enemies at (0,1), (1,0), (1,2), (2,1) - all within range 2
@@ -146,7 +148,7 @@ public class RogueSpecialAttackTest {
         Path trapFile = Files.createTempFile("trap_board", ".txt");
         Files.writeString(trapFile, trapBoardLayout);
 
-        GameBoard trapBoard = new GameBoard(trapFile.toString(), rogue);
+        GameBoard trapBoard = new GameBoard(trapFile.toString(), rogue, UI);
         SpecialAttackAction trapSpecialAttack = new SpecialAttackAction(trapBoard);
 
         // Set rogue to have enough energy
@@ -212,7 +214,7 @@ public class RogueSpecialAttackTest {
         Path rangeFile = Files.createTempFile("range_board", ".txt");
         Files.writeString(rangeFile, rangeBoardLayout);
 
-        GameBoard rangeBoard = new GameBoard(rangeFile.toString(), rogue);
+        GameBoard rangeBoard = new GameBoard(rangeFile.toString(), rogue, UI);
         SpecialAttackAction rangeSpecialAttack = new SpecialAttackAction(rangeBoard);
 
         // Set rogue to have enough energy
@@ -243,7 +245,7 @@ public class RogueSpecialAttackTest {
         Path mixedFile = Files.createTempFile("mixed_board", ".txt");
         Files.writeString(mixedFile, mixedBoardLayout);
 
-        GameBoard mixedBoard = new GameBoard(mixedFile.toString(), rogue);
+        GameBoard mixedBoard = new GameBoard(mixedFile.toString(), rogue, UI);
         SpecialAttackAction mixedSpecialAttack = new SpecialAttackAction(mixedBoard);
 
         // Set rogue to have enough energy
@@ -251,13 +253,12 @@ public class RogueSpecialAttackTest {
 
         // Record initial state
         int initialXP = rogue.getExperience();
-        int initialEnemyCount = mixedBoard.getEnemyCount();
 
         // Perform special attack
         rogue.accept(mixedSpecialAttack);
 
         // Check that energy was consumed
-        assertEquals(80, rogue.getCurrentEnergy());
+        assertEquals(50, rogue.getCurrentEnergy());
 
         // Check that at least some enemies were affected
         boolean someEnemiesAffected = false;

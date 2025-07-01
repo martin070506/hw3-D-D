@@ -7,6 +7,10 @@ import BoardLogic.Point;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Player;
+import Player_Types.Rogue;
+import Player_Types.Warrior;
+import UI.UserInterface;
+import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,14 +18,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MoveActionTest {
-
+    private UserInterfaceCallback UI;
     private GameBoard gameBoard;
     private Player warrior;
 
     @BeforeEach
     public void setup() {
-        warrior = GameBoard.choosePlayer("5");
-        gameBoard = new GameBoard(warrior, 5, 5);
+        UI = new UserInterface();
+        warrior = new Warrior("Jon Snow");
+        gameBoard = new GameBoard(warrior, 5, 5, UI);
         warrior.setLocation(new Point(2, 2));
         gameBoard.getBoard()[2][2] = new GameTile('@', warrior, new Point(2, 2));
     }
@@ -137,7 +142,7 @@ public class MoveActionTest {
 
     @Test
     public void testMoveActionWithNullBoardThrowsNoException() {
-        MoveAction action = new MoveAction('w', null);
+        MoveAction action = new MoveAction('w', null); // TODO What ?
         assertDoesNotThrow(() -> warrior.accept(action));
     }
 
@@ -175,8 +180,8 @@ public class MoveActionTest {
     }
     @Test
     public void testMonsterMovesRandomlyWhenOutOfRange() {
-        Player dummyPlayer = GameBoard.choosePlayer("1");
-        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+        Player dummyPlayer = new Warrior("Jon Snow");
+        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5, UI);
         dummyPlayer.setLocation(new Point(4, 4));
         enemyBoard.getBoard()[4][4] = new GameTile('@', dummyPlayer, new Point(4, 4));
 
@@ -203,8 +208,8 @@ public class MoveActionTest {
 
     @Test
     public void testMonsterMovesTowardPlayerWhenInRange() {
-        Player dummyPlayer = GameBoard.choosePlayer("1");
-        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+        Player dummyPlayer = new Warrior("Jon Snow");
+        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5, UI);
         dummyPlayer.setLocation(new Point(2, 2));
         enemyBoard.getBoard()[2][2] = new GameTile('@', dummyPlayer, new Point(2, 2));
 
@@ -215,13 +220,13 @@ public class MoveActionTest {
         MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
         monster.accept(monsterAction);
 
-        assertEquals(monster, enemyBoard.getBoard()[2][3].getUnit(), "Monster should move one tile up toward the player.");
+        assertEquals(monster, enemyBoard.getBoard()[3][2].getUnit(), "Monster should move one tile up toward the player.");
     }
 
     @Test
     public void testMonsterBlockedByWallDoesNotMove() {
-        Player dummyPlayer = GameBoard.choosePlayer("1");
-        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5);
+        Player dummyPlayer = new Warrior("Jon Snow");
+        GameBoard enemyBoard = new GameBoard(dummyPlayer, 5, 5, UI);
         dummyPlayer.setLocation(new Point(2, 2));
         enemyBoard.getBoard()[2][2] = new GameTile('@', dummyPlayer, new Point(2, 2));
 
@@ -240,26 +245,28 @@ public class MoveActionTest {
 
     @Test
     public void testMonsterDoesNotMoveIntoWall() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
         Point monsterStart = new Point(2, 4);
         Unit monster = GameBoard.chooseUnitByType('s');
-        board.getBoard()[4][2] = new GameTile('#', null, new Point(2, 3));
         board.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
-
+        board.getBoard()[3][2] = new GameTile('#', null, new Point(2, 3));
+        System.out.println(board);
         MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
+
         monster.accept(action);
+        System.out.println(board);
 
         assertEquals(monster, board.getBoard()[4][2].getUnit(), "Monster shouldn't move into wall.");
     }
 
     @Test
     public void testMonsterAttacksPlayerOnSameTile() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         Point playerPos = new Point(2, 2);
         player.setLocation(playerPos);
         board.getBoard()[2][2] = new GameTile('@', player, playerPos);
@@ -276,8 +283,8 @@ public class MoveActionTest {
 
     @Test
     public void testTrapInRangeAttacksPlayer() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
@@ -293,8 +300,8 @@ public class MoveActionTest {
 
     @Test
     public void testTrapNotInRangeDoesNotAttack() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(0, 0));
         board.getBoard()[0][0] = new GameTile('@', player, new Point(0, 0));
 
@@ -309,8 +316,8 @@ public class MoveActionTest {
     }
     @Test
     public void testMonsterChasesPlayerWhenInRange() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
@@ -321,16 +328,16 @@ public class MoveActionTest {
         MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
         monster.accept(action);
 
-        assertEquals(monster, board.getBoard()[2][3].getUnit(), "Monster should move toward the player.");
+        assertEquals(monster, board.getBoard()[3][2].getUnit(), "Monster should move toward the player.");
     }
 
 
     @Test
     public void testTrapTickIncrements() {
         Trap trap = new Trap("Death Trap");
-        Player player = GameBoard.choosePlayer("1");
+        Player player = new Warrior("Jon Snow");
         player.setLocation(new Point(2, 2));
-        GameBoard board = new GameBoard(player, 5, 5);
+        GameBoard board = new GameBoard(player, 5, 5, UI);
 
         Point trapPos = new Point(1, 1);
         MoveAction action = new MoveAction(player, trapPos, 'D', board, board);
@@ -343,8 +350,8 @@ public class MoveActionTest {
 
     @Test
     public void testTrapAttacksOnlyWithinRange() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
@@ -360,8 +367,8 @@ public class MoveActionTest {
 
     @Test
     public void testMonsterCannotMoveToOccupiedTile() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(2, 2));
         board.getBoard()[2][2] = new GameTile('@', player, new Point(2, 2));
 
@@ -378,8 +385,8 @@ public class MoveActionTest {
 
     @Test
     public void testTrapNoExceptionWhenFarFromPlayer() {
-        Player player = GameBoard.choosePlayer("1");
-        GameBoard board = new GameBoard(player, 5, 5);
+        Player player = new Warrior("Jon Snow");
+        GameBoard board = new GameBoard(player, 5, 5, UI);
         player.setLocation(new Point(0, 0));
 
         Trap trap = new Trap("Death Trap");
@@ -387,6 +394,4 @@ public class MoveActionTest {
 
         assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board, board)));
     }
-
-
 }
