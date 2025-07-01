@@ -29,7 +29,6 @@ public class UserInterface implements UserInterfaceCallback {
 
         if (firstFile == null)
             throw new IOException("No .txt files found in folder: " + TXTFolderPath);
-
         this.gameOver = false;
     }
 
