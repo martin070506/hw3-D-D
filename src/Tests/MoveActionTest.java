@@ -7,7 +7,6 @@ import BoardLogic.Point;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
 import Player_Types.Player;
-import Player_Types.Rogue;
 import Player_Types.Warrior;
 import UI.UserInterface;
 import UI.UserInterfaceCallback;
@@ -34,7 +33,7 @@ public class MoveActionTest {
     @Test
     public void testMoveUp() {
         MoveAction action = new MoveAction('w', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(1, warrior.getLocation().getY());
     }
@@ -42,7 +41,7 @@ public class MoveActionTest {
     @Test
     public void testMoveDown() {
         MoveAction action = new MoveAction('s', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(3, warrior.getLocation().getY());
     }
@@ -50,7 +49,7 @@ public class MoveActionTest {
     @Test
     public void testMoveLeft() {
         MoveAction action = new MoveAction('a', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(1, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
     }
@@ -58,7 +57,7 @@ public class MoveActionTest {
     @Test
     public void testMoveRight() {
         MoveAction action = new MoveAction('d', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(3, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
     }
@@ -67,7 +66,7 @@ public class MoveActionTest {
     public void testIllegalMoveIntoWall() {
         gameBoard.getBoard()[1][2] = new GameTile('#', null, new Point(2, 1));
         MoveAction action = new MoveAction('w', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
     }
@@ -77,7 +76,7 @@ public class MoveActionTest {
         warrior.setLocation(new Point(2, 0));
         gameBoard.getBoard()[0][2] = new GameTile('@', warrior, new Point(2, 0));
         MoveAction action = new MoveAction('w', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(0, warrior.getLocation().getY());
     }
@@ -87,7 +86,7 @@ public class MoveActionTest {
         warrior.setLocation(new Point(0, 2));
         gameBoard.getBoard()[2][0] = new GameTile('@', warrior, new Point(0, 2));
         MoveAction action = new MoveAction('a', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertEquals(0, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
     }
@@ -95,7 +94,7 @@ public class MoveActionTest {
     @Test
     public void testMoveToEmptyTile() {
         MoveAction action = new MoveAction('s', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         GameTile tile = gameBoard.getBoard()[3][2];
         assertEquals('@', tile.getType());
         assertEquals(warrior, tile.getUnit());
@@ -104,14 +103,14 @@ public class MoveActionTest {
     @Test
     public void testMoveDoesNotClonePlayer() {
         MoveAction action = new MoveAction('s', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         assertSame(warrior, gameBoard.getBoard()[3][2].getUnit());
     }
 
     @Test
     public void testMoveReplacesOldPosition() {
         MoveAction action = new MoveAction('s', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         GameTile previous = gameBoard.getBoard()[2][2];
         assertNull(previous.getUnit());
         assertEquals('.', previous.getType());
@@ -121,7 +120,7 @@ public class MoveActionTest {
         Unit trap = new Trap("Death Trap");
         gameBoard.getBoard()[1][2] = new GameTile('D', trap, new Point(2, 1));
         MoveAction action = new MoveAction('w', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         // Player should not move
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
@@ -132,7 +131,7 @@ public class MoveActionTest {
         Unit monster = new Monster("Lannister Solider");
         gameBoard.getBoard()[1][2] = new GameTile('s', monster, new Point(2, 1));
         MoveAction action = new MoveAction('w', gameBoard);
-        warrior.accept(action);
+        warrior.accept(action, false);
         // Player should stay in place if combat logic doesn't move them
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
@@ -143,13 +142,13 @@ public class MoveActionTest {
     @Test
     public void testMoveActionWithNullBoardThrowsNoException() {
         MoveAction action = new MoveAction('w', null); // TODO What ?
-        assertDoesNotThrow(() -> warrior.accept(action));
+        assertDoesNotThrow(() -> warrior.accept(action, false));
     }
 
     @Test
     public void testMoveTwiceUpdatesToNewLocation() {
-        warrior.accept(new MoveAction('s', gameBoard));
-        warrior.accept(new MoveAction('s', gameBoard));
+        warrior.accept(new MoveAction('s', gameBoard), false);
+        warrior.accept(new MoveAction('s', gameBoard), false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(4, warrior.getLocation().getY());
     }
@@ -162,19 +161,19 @@ public class MoveActionTest {
         gameBoard.getBoard()[2][1] = new GameTile('#', null, new Point(1, 2)); // left
         gameBoard.getBoard()[2][3] = new GameTile('#', null, new Point(3, 2)); // right
 
-        warrior.accept(new MoveAction('w', gameBoard));
+        warrior.accept(new MoveAction('w', gameBoard), false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
 
-        warrior.accept(new MoveAction('s', gameBoard));
+        warrior.accept(new MoveAction('s', gameBoard), false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
 
-        warrior.accept(new MoveAction('a', gameBoard));
+        warrior.accept(new MoveAction('a', gameBoard), false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
 
-        warrior.accept(new MoveAction('d', gameBoard));
+        warrior.accept(new MoveAction('d', gameBoard), false);
         assertEquals(2, warrior.getLocation().getX());
         assertEquals(2, warrior.getLocation().getY());
     }
@@ -191,7 +190,7 @@ public class MoveActionTest {
         System.out.println(enemyBoard);
 
         MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
-        monster.accept(monsterAction);
+        monster.accept(monsterAction, false);
 
         boolean hasMoved = false;
         for (int y = 0; y < 5 && !hasMoved; y++) {
@@ -218,7 +217,7 @@ public class MoveActionTest {
         enemyBoard.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
 
         MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
-        monster.accept(monsterAction);
+        monster.accept(monsterAction, false);
 
         assertEquals(monster, enemyBoard.getBoard()[3][2].getUnit(), "Monster should move one tile up toward the player.");
     }
@@ -238,7 +237,7 @@ public class MoveActionTest {
         enemyBoard.getBoard()[3][2] = new GameTile('#', null, new Point(2, 3));
 
         MoveAction monsterAction = new MoveAction(dummyPlayer, monsterStart, 's', enemyBoard, enemyBoard);
-        monster.accept(monsterAction);
+        monster.accept(monsterAction, false);
 
         assertEquals(monster, enemyBoard.getBoard()[4][2].getUnit(), "Monster should not move into a wall.");
     }
@@ -257,7 +256,7 @@ public class MoveActionTest {
         System.out.println(board);
         MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
 
-        monster.accept(action);
+        monster.accept(action, false);
         System.out.println(board);
 
         assertEquals(monster, board.getBoard()[4][2].getUnit(), "Monster shouldn't move into wall.");
@@ -276,7 +275,7 @@ public class MoveActionTest {
         board.getBoard()[3][2] = new GameTile('K', monster, monsterStart);
 
         MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
-        monster.accept(action);
+        monster.accept(action, false);
 
         assertTrue(player.getHealth() < player.getMaxHealth(), "Player should take damage from monster attack.");
     }
@@ -293,7 +292,7 @@ public class MoveActionTest {
         board.getBoard()[2][3] = new GameTile('D', trap, trapPos);
 
         MoveAction trapAction = new MoveAction(player, trapPos, 'D', board, board);
-        trap.accept(trapAction);
+        trap.accept(trapAction, false);
 
         assertTrue(player.getHealth() < player.getMaxHealth(), "Trap should damage player.");
     }
@@ -310,7 +309,7 @@ public class MoveActionTest {
         board.getBoard()[4][4] = new GameTile('D', trap, trapPos);
 
         MoveAction action = new MoveAction(player, trapPos, 'D', board, board);
-        trap.accept(action);
+        trap.accept(action, false);
 
         assertEquals(player.getHealth(), player.getMaxHealth(), "Trap should not damage player if too far.");
     }
@@ -326,7 +325,7 @@ public class MoveActionTest {
         board.getBoard()[4][2] = new GameTile('s', monster, monsterStart);
 
         MoveAction action = new MoveAction(player, monsterStart, 's', board, board);
-        monster.accept(action);
+        monster.accept(action, false);
 
         assertEquals(monster, board.getBoard()[3][2].getUnit(), "Monster should move toward the player.");
     }
@@ -343,7 +342,7 @@ public class MoveActionTest {
         MoveAction action = new MoveAction(player, trapPos, 'D', board, board);
         int oldTick = trap.getTicks();
 
-        trap.accept(action);
+        trap.accept(action, false);
         assertEquals(oldTick + 1, trap.getTicks(), "Trap tick should increment.");
     }
 
@@ -360,7 +359,7 @@ public class MoveActionTest {
         board.getBoard()[3][3] = new GameTile('D', trap, trapPos);
 
         int initialHealth = player.getHealth();
-        trap.accept(new MoveAction(player, trapPos, 'D', board, board));
+        trap.accept(new MoveAction(player, trapPos, 'D', board, board), false);
 
         assertTrue(player.getHealth() < initialHealth);
     }
@@ -378,7 +377,7 @@ public class MoveActionTest {
         board.getBoard()[2][1] = new GameTile('s', monster, start);
 
         MoveAction action = new MoveAction(player, start, 's', board, board);
-        monster.accept(action);
+        monster.accept(action, false);
 
         assertEquals(monster, board.getBoard()[2][1].getUnit(), "Monster should not move into a wall.");
     }
@@ -392,6 +391,6 @@ public class MoveActionTest {
         Trap trap = new Trap("Death Trap");
         Point trapPos = new Point(4, 4);
 
-        assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board, board)));
+        assertDoesNotThrow(() -> trap.accept(new MoveAction(player, trapPos, 'D', board, board), false));
     }
 }

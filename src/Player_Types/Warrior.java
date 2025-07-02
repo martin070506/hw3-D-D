@@ -1,7 +1,9 @@
 package Player_Types;
 
-import EnemyTypes.Enemy;
-import Unit_Logic.Unit;
+import Actions.MoveAction;
+import BoardLogic.GameBoard;
+import BoardLogic.GameTile;
+import BoardLogic.Point;
 import Unit_Logic.UnitVisitor;
 
 import java.util.ArrayList;
@@ -53,18 +55,29 @@ public class Warrior extends Player
 
     // Abstract Methods
     @Override
-    public void accept(UnitVisitor unitVisitor) { unitVisitor.visitWarrior(this); }
+    public void accept(UnitVisitor unitVisitor, boolean ability) { unitVisitor.visitWarrior(this); }
 
     @Override
-    public void castAbility(){
+    public boolean castAbility(Point location){
         if (remainingCooldown > 0)
-            return;
+            return false;
 
+        int level = getLevel();
         remainingCooldown = abilityCooldown;
-        ArrayList<Unit> enemyList = getCallback().getEnemiesInRange(getLocation(), 3);;
+        ArrayList<GameTile> enemyTileList = getCallback().getTileEnemiesInRange(getLocation(), 3);;
 
-        if (!enemyList.isEmpty())
-            enemyList.get(new Random().nextInt(enemyList.size())).accept(getCallback().playerAttack(this, 'e'));
+        getCallback().update(getName() + " used Avenger's Shield, healing for " + 10 * getDefense() + ".\n");
+        setHealth(getHealth() + 10 * getDefense());
+        if (!enemyTileList.isEmpty()) {
+            GameTile enemyTile = enemyTileList.get(new Random().nextInt(enemyTileList.size()));
+            enemyTile.getUnit().accept(getCallback().playerAttack(this, 'e', enemyTile.getPosition()), true);
+
+        }
+        if (level != getLevel())
+            MoveAction.handleLevelUpWarrior(this, level, getLevel());
+
+
+        return true;
     }
 
     @Override
@@ -72,6 +85,9 @@ public class Warrior extends Player
         return super.toString() +
                 "    Cooldown: " + getRemainingCooldown() + '/' + getAbilityCooldown();
     }
+
+    @Override
+    public int attackAbility() { return (int) (0.1 * getMaxHealth()); }
 
     // Other Methods
     private static int[] getWarriorStat(String name) {
@@ -83,3 +99,4 @@ public class Warrior extends Player
         };
     }
 }
+

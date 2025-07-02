@@ -7,10 +7,7 @@ import EnemyTypes.Boss;
 import EnemyTypes.Enemy;
 import EnemyTypes.Monster;
 import EnemyTypes.Trap;
-import Player_Types.Mage;
-import Player_Types.Player;
-import Player_Types.Rogue;
-import Player_Types.Warrior;
+import Player_Types.*;
 import UI.UserInterfaceCallback;
 import Unit_Logic.Unit;
 import Unit_Logic.UnitVisitor;
@@ -23,20 +20,23 @@ public class AttackAction implements UnitVisitor {
     private GameBoard gameBoard;
     private Unit enemyAttacker;
     private char directionKey;
+    private Point location;
     private final UserInterfaceCallback callback;
 
 
-    public AttackAction(Player attacker, GameBoard gameBoard, char directionKey)
+    public AttackAction(Player attacker, GameBoard gameBoard, char directionKey, Point location)
     {
         this.attacker = attacker;
         this.gameBoard = gameBoard;
         this.directionKey = directionKey;
         this.callback = gameBoard.getCallback();
+        this.location = location;
     }
 
-    public AttackAction (Enemy attacker, UserInterfaceCallback callback)
+    public AttackAction(Enemy attacker, Point location, UserInterfaceCallback callback)
     {
         enemyAttacker = attacker;
+        this.location = location;
         this.callback = callback;
     }
 
@@ -51,30 +51,45 @@ public class AttackAction implements UnitVisitor {
         visitPlayer(rogue);
     }
 
-    @Override
-    public void visitMonster(Monster monster) { visitEnemy(monster); }
+    public void visitHunter(Hunter hunter) {
+        visitPlayer(hunter);
+    }
 
     @Override
-    public void visitTrap(Trap trap) { visitEnemy(trap); }
+    public void visitMonster(Monster monster, boolean ability) { visitEnemy(monster, location, ability); }
 
     @Override
-    public void visitBoss(Boss boss, boolean active) { visitEnemy(boss); }
+    public void visitTrap(Trap trap, boolean ability) { visitEnemy(trap, location, ability); }
+
+    @Override
+    public void visitBoss(Boss boss, boolean ability) { visitEnemy(boss, location, ability); }
 
     private void visitPlayer(Player player){
         engaged(enemyAttacker, player);
         int attack = rollAttack(enemyAttacker.getName(), enemyAttacker.getAttack());
         int defense = rollDefense(player.getName(), player.getDefense());
-        dealDamage(enemyAttacker, player, attack - defense);
+        dealDamage(enemyAttacker, player, attack - defense, false);
         // Death of player handled in setHealth in Player
     }
 
-    private void visitEnemy(Enemy enemy){
-        engaged(attacker, enemy);
-        int attack = rollAttack(attacker.getName(), attacker.getAttack());
-        int defense = rollDefense(enemy.getName(), enemy.getDefense());
-        dealDamage(attacker, enemy, attack - defense);
-        if (enemy.getHealth() == 0) // The setHealth take care in negative values
-            handleDeathOfEnemy(enemy);
+    private void visitEnemy(Enemy enemy, Point location, boolean ability){
+        int attack = 0;
+        int defense = 0;
+        if (!ability) {
+            engaged(attacker, enemy);
+            attack = rollAttack(attacker.getName(), attacker.getAttack());
+            defense = rollDefense(enemy.getName(), enemy.getDefense());
+        }
+        else {
+            attack = attacker.attackAbility();
+            defense = rollDefense(enemy.getName(), enemy.getDefense());
+        }
+        dealDamage(attacker, enemy, attack - defense, ability);
+        if (enemy.getHealth() == 0) {
+            callback.update(enemy.getName() + " died. " + attacker.getName() + " gained " +
+                    enemy.getXP() + " experience.\n");
+            handleDeathOfEnemy(enemy, location);
+        }
     }
 
     private void engaged(Unit attacker, Unit defender){
@@ -97,24 +112,27 @@ public class AttackAction implements UnitVisitor {
         return points;
     }
 
-    private void dealDamage(Unit attacker, Unit defender, int damage) {
+    private void dealDamage(Unit attacker, Unit defender, int damage, boolean ability) {
         if (damage < 0)
             damage = 0;
-        callback.update(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + ".\n");
+        if (ability)
+            callback.update(attacker.getName() + " hit " + defender.getName() + " for " + damage + " ability damage.\n");
+        else
+            callback.update(attacker.getName() + " dealt " + damage + " damage to " + defender.getName() + ".\n");
         defender.takeDamage(damage);
     }
 
-    private void handleDeathOfEnemy(Enemy enemy)
+    private void handleDeathOfEnemy(Enemy enemy, Point location)
     {
         handleXP(enemy);
-        handleTileClearance(enemy);
+        handleTileClearance(location);
         gameBoard.setEnemyCount(gameBoard.getEnemyCount()-1);
     }
 
     private void handleXP(Enemy enemy) {
 
         attacker.setExperience(attacker.getExperience() + enemy.getXP());
-        if (attacker.getExperience() >= (50 * attacker.getLevel())) {
+        while (attacker.getExperience() >= (50 * attacker.getLevel())) {
             attacker.setExperience(attacker.getExperience() - 50 * attacker.getLevel());
             attacker.setLevel(attacker.getLevel() + 1);
             attacker.setMaxHealth(attacker.getMaxHealth() + 10 * attacker.getLevel());
@@ -124,7 +142,7 @@ public class AttackAction implements UnitVisitor {
         }
     }
 
-    private void handleTileClearance(Enemy enemy)
+    private void handleTileClearance(Point location)
     {
         GameTile[][] boardMatrix = gameBoard.getBoard();
         int x = attacker.getLocation().getX();
@@ -148,20 +166,28 @@ public class AttackAction implements UnitVisitor {
             }
             case 's':
             {
-                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
-                boardMatrix[y+1][x]=new GameTile('@',attacker,new Point(x,y+1));
-                attacker.setLocation(new Point(x,y+1));
+                boardMatrix[y][x] = new GameTile('.', null, new Point(x,y));
+                boardMatrix[y + 1][x] = new GameTile('@', attacker, new Point(x, y + 1));
+                attacker.setLocation(new Point(x,y + 1));
                 break;
             }
             case 'd':
             {
-                boardMatrix[y][x]=new GameTile('.',null,new Point(x,y));
-                boardMatrix[y][x+1]=new GameTile('@',attacker,new Point(x+1,y));
-                attacker.setLocation(new Point(x+1,y));
+                boardMatrix[y][x] = new GameTile('.', null, new Point(x,y));
+                boardMatrix[y][x + 1] = new GameTile('@', attacker, new Point(x + 1, y));
+                attacker.setLocation(new Point(x + 1, y));
+                break;
+            }
+            case 'e':
+            {
+                boardMatrix[location.getY()][location.getX()] =
+                        new GameTile('.', null, location);
                 break;
             }
             default:
                 break;
         }
     }
+
+
 }

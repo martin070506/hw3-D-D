@@ -47,7 +47,7 @@ public abstract class Unit {
 
 
     // Abstract Methods
-    public abstract void accept(UnitVisitor unitVisitor);
+    public abstract void accept(UnitVisitor unitVisitor, boolean ability);
 
     // Other Methods
     public void takeDamage(int damage) {

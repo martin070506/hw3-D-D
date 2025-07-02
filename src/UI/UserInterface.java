@@ -1,6 +1,7 @@
 package UI;
 
 import BoardLogic.GameBoard;
+import Player_Types.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 public class UserInterface implements UserInterfaceCallback {
 
     private GameBoard gameBoard;
+    private Player player;
     private final Scanner scanner = new Scanner(System.in);
     private String input;
     private boolean gameOver;
@@ -36,14 +38,24 @@ public class UserInterface implements UserInterfaceCallback {
     public UserInterface() {}
 
     public void startGame() throws IOException {
+        player = new GameBoard(this).choosePlayer();
         for (File f : files)
             if (!gameOver)
                 startLevel(f.getAbsolutePath());
+
+        System.out.println(gameBoard.getPlayer());
+        if (gameOver)
+            System.out.println("Game Over.");
+        else
+            System.out.println("You Won.");
     }
 
     public void startLevel(String txtFilePath) throws IOException {
-        gameBoard = new GameBoard(txtFilePath, this);
+        gameBoard = new GameBoard(txtFilePath, player, this);
+        System.out.println(gameBoard.getPlayer());
+        System.out.println(gameBoard);
         while (!gameOver && gameBoard.getEnemyCount() > 0) {
+
             input = scanner.nextLine().trim().toLowerCase();
             gameBoard.nextTick(input);
         }
@@ -56,7 +68,6 @@ public class UserInterface implements UserInterfaceCallback {
 
     @Override
     public void endGame() {
-        System.out.println(gameBoard.toString());
         gameOver = true;
     }
 

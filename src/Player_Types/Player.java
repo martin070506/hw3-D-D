@@ -8,7 +8,7 @@ import Unit_Logic.UnitVisitor;
 public abstract class Player extends Unit implements HeroicUnit {
     /// Fields
     private GameBoardCallback callback;
-    private Point location; // TODO not being used, and has getter
+    private Point location; //
     private int experience;
     private int level;
 
@@ -38,12 +38,12 @@ public abstract class Player extends Unit implements HeroicUnit {
     public void setExperience(int experience) { this.experience = experience; }
     public void setLevel(int playerLevel) { this.level = playerLevel; }
 
-
     // Abstract Methods
-    public abstract void accept(UnitVisitor unitVisitor);
-    public abstract void castAbility();
+    public abstract void accept(UnitVisitor unitVisitor, boolean ability);
+    public abstract boolean castAbility(Point location);
+    public abstract int attackAbility();
 
-    // Other Methods
+    // Qverride Methods
     @Override
     public void takeDamage(int damage) {
         super.takeDamage(damage);

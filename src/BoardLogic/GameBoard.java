@@ -30,34 +30,40 @@ public class GameBoard implements GameBoardCallback {
     // default constructor where player is selected for first Time
     // it build the board and selects Player
     public GameBoard(String TXTFilePath, UserInterfaceCallback UI) throws IOException {
+        callback = UI;
         enemyCount = 0;
         Player chosenPlayer = choosePlayer();
         player = chosenPlayer;
         player.setCallback(this);
         board = BuildBoard(TXTFilePath, chosenPlayer);
-        callback = UI;
     }
 
     // constructor for if player is already available,for example passing a level stays with the same
     // Player so the constructor builds a new board with a predefined player
     public GameBoard(String TXTFilePath, Player player, UserInterfaceCallback UI) throws IOException
     {
+        callback = UI;
         enemyCount = 0;
         this.player = player;
         player.setCallback(this);
         board = BuildBoard(TXTFilePath, player);
-        callback = UI;
     }
 
     public GameBoard(Player player, int length, int width, UserInterfaceCallback UI) {
+        callback = UI;
         board = new GameTile[length][width];
         this.player = player;
         player.setCallback(this);
-        for (int i = 0; i < length; i++)
-            for (int j = 0; j < width; j++)
-                board[i][j] = new GameTile('.', null, new Point(i,j));
-        callback = UI;
+        for (int y = 0; y < length; y++)
+            for (int x = 0; x < width; x++)
+                board[y][x] = new GameTile('.', null, new Point(x,y));
     }
+
+    public GameBoard(UserInterfaceCallback UI){
+        callback = UI;
+        player = null;
+    }
+
 
 
 
@@ -69,55 +75,59 @@ public class GameBoard implements GameBoardCallback {
     public UserInterfaceCallback getCallback() { return callback; }
 
     // Setters
-    public void setEnemyCount(int enemyCount) { this.enemyCount=enemyCount; }
+    public void setEnemyCount(int enemyCount) { this.enemyCount = enemyCount; }
 
     // Override Methods
     @Override
     public void endGame() {
-        board[player.getLocation().getX()][player.getLocation().getY()].setType('X');
+        board[player.getLocation().getY()][player.getLocation().getX()].setType('X');
         callback.endGame();
     }
 
     @Override
-    public ArrayList<Unit> getEnemiesInRange(Point point, int distance){
-
-        ArrayList<Unit> enemyList = new ArrayList<>();
+    public ArrayList<GameTile> getTileEnemiesInRange(Point point, int distance){
+        ArrayList<GameTile> enemyTileList = new ArrayList<>();
         for (int y = Math.max(point.getY() - distance, 0);
              y <= Math.min(point.getY() + distance, getHeight() - 1); y++)
             for (int x = Math.max(point.getX() - distance, 0);
                  x <= Math.min(point.getX() + distance, getWidth() - 1); x++)
                 if (board[y][x].getUnit() != null &&
-                        !point.equals(player.getLocation()) &&
-                        point.distance(player.getLocation()) <= distance)
-                    enemyList.add(board[y][x].getUnit());
+                        !point.equals(new Point(x,y)) &&
+                        point.distance(new Point(x,y)) <= distance)
+                    enemyTileList.add(board[y][x]);
 
-        return enemyList;
+        return enemyTileList;
+    }
+
+
+    @Override
+    public AttackAction playerAttack(Player player, char direction, Point loaction){
+        return new AttackAction(player, this, direction, loaction);
     }
 
     @Override
-    public AttackAction playerAttack(Player player, char direction){
-        return new AttackAction(player, this, direction);
+    public void enemyAttack(Enemy enemy, Point location) {
+        player.accept(new AttackAction(enemy, location, callback), false);
     }
 
     @Override
-    public void enemyAttack(Enemy enemy) {
-        player.accept(new AttackAction(enemy, callback));
-    }
+    public void update(String message) { callback.update(message); }
 
     // Other Methods
     public void nextTick(String input){
-        if (input.length() != 1) {
+        if (input.length() != 1)
             return;
-        }
+        callback.update("Enemies Left:" + getEnemyCount()+ '\n');
+
         switch (input.charAt(0)) {
             case 'w':
             case 'a':
             case 's':
             case 'd':
-                player.accept(new MoveAction(input.charAt(0), this));
+                player.accept(new MoveAction(input.charAt(0), this), false);
                 break;
             case 'e':
-                player.castAbility();
+                player.castAbility(null);
                 break;
             case 'q':
                 break;
@@ -126,14 +136,25 @@ public class GameBoard implements GameBoardCallback {
         }
         callback.update(player.toString() + '\n');
         GameBoard newGameBoard = temporaryGameBoard(this);
-        for (int i = 0; i < getHeight(); i++)
-            for (int j = 0; j < getWidth(); j++)
-                if (!Set.of('@', '#', '.', 'B', 'Q', 'D').contains(board[i][j].getType())&&board[i][j].getUnit()!=null)
-                    board[i][j].getUnit().accept(new MoveAction(player, new Point(j, i),
-                            board[i][j].getType(), this, newGameBoard));
+        int counter=0;
+        for (int y = 0; y < getHeight(); y++)
+        {
+            for (int x = 0; x < getWidth(); x++)
+            {
+                if (!Set.of('@', '#', '.').contains(board[y][x].getType()) && board[y][x].getUnit() != null)
+                {
+                    board[y][x].getUnit().accept(new MoveAction(player, new Point(x,y), board[y][x].getType(), this, newGameBoard), false);
+                    counter++;
+                }
+
+
+            }
+        }
+         this.setEnemyCount(counter);
 
         board = newGameBoard.board;
         callback.update(toString());
+
     }
 
     public GameTile[][] BuildBoard(String TXTFilePath, Player player) throws IOException {
@@ -148,12 +169,13 @@ public class GameBoard implements GameBoardCallback {
             for (int x = 0; x < width; x++) {
                 char type = line.charAt(x);
                 if (type == '@') {
-                    newBoard[y][x] = new GameTile(type, player, new Point(x, y));
-                    player.setLocation(new Point(x, y));
-                } else {
+                    newBoard[y][x] = new GameTile(type, player, new Point(x,y));
+                    player.setLocation(new Point(x,y));
+                }
+                else {
                     if (chooseUnitByType(type) != null)
                         enemyCount += 1;
-                    newBoard[y][x] = new GameTile(type, chooseUnitByType(type), new Point(x, y));
+                    newBoard[y][x] = new GameTile(type, chooseUnitByType(type), new Point(x,y));
                 }
             }
         }
@@ -163,11 +185,13 @@ public class GameBoard implements GameBoardCallback {
 
 
     private GameBoard temporaryGameBoard(GameBoard gameBoard) {
-        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(), gameBoard.getWidth(), callback);
-        for (int i = 0; i < gameBoard.getHeight(); i++)
-            for (int j = 0; j < gameBoard.getWidth(); j++)
-                if (board[i][j]!=null&&Set.of('@', '#', 'B', 'Q', 'D').contains(board[i][j].getType()))
-                        newGameBoard.board[i][j] = gameBoard.board[i][j];
+        GameBoard newGameBoard = new GameBoard(gameBoard.player, gameBoard.getHeight(),
+                gameBoard.getWidth(), callback);
+        for (int y = 0; y < gameBoard.getHeight(); y++)
+            for (int x = 0; x < gameBoard.getWidth(); x++)
+                if (board[y][x] != null &&
+                        Set.of('@', '#', 'B', 'Q', 'D').contains(board[y][x].getType()))
+                        newGameBoard.board[y][x] = gameBoard.board[y][x];
 
         return newGameBoard;
     }
@@ -256,17 +280,17 @@ public class GameBoard implements GameBoardCallback {
         };
     }
 
-    private Player choosePlayer()
+    public Player choosePlayer()
     {
         Scanner s = new Scanner(System.in);
-        callback.update("Choose a Player (1-6):\n");
-        callback.update("1 - Jon Snow      (Warrior)     | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
-        callback.update("2 - The Hound     (Warrior)     | Health: 400, Attack: 20, Defense: 6, Cooldown: 5\n");
-        callback.update("3 - Melisandre    (Mage)        | Health: 100, Attack: 5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6\n");
-        callback.update("4 - Thoros of Myr (Mage)        | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
-        callback.update("5 - Arya Stark    (Rogue)       | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
-        callback.update("6 - Bronn         (Rogue)       | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
-        callback.update("Enter your choice (1-6): ");
+        callback.update("Select Player :\n");
+        callback.update("1 - Jon Snow      (Warrior)  | Health: 300, Attack: 30, Defense: 4, Cooldown: 3\n");
+        callback.update("2 - The Hound     (Warrior)  | Health: 400, Attack: 20, Defense: 6, Cooldown: 5\n");
+        callback.update("3 - Melisandre    (Mage)     | Health: 100, Attack:  5, Defense: 1, Mana: 300, Spell Power: 15, Range: 6\n");
+        callback.update("4 - Thoros of Myr (Mage)     | Health: 250, Attack: 25, Defense: 4, Mana: 150, Spell Power: 20, Range: 4\n");
+        callback.update("5 - Arya Stark    (Rogue)    | Health: 150, Attack: 40, Defense: 2, Cost: 20\n");
+        callback.update("6 - Bronn         (Rogue)    | Health: 250, Attack: 35, Defense: 3, Cost: 50\n");
+        callback.update("7 - Ygritte       (Hunter)   | Health: 220, Attack: 30, Defense: 2, Range: 6\n");
         String type = s.next();
         return switch (type) {
             case "1" -> choosePlayer("1");
@@ -275,19 +299,21 @@ public class GameBoard implements GameBoardCallback {
             case "4" -> choosePlayer("4");
             case "5" -> choosePlayer("5");
             case "6" -> choosePlayer("6");
+            case "7" -> choosePlayer("7");
             default -> choosePlayer(); // That the way they did in their example
         };
     }
 
-    public Player choosePlayer(String input)
+    private Player choosePlayer(String input)
     {
         return switch (input) {
-            case "1" -> new Warrior("Jon snow");
+            case "1" -> new Warrior("Jon Snow");
             case "2" -> new Warrior("The Hound");
             case "3" -> new Mage("Melisandre");
             case "4" -> new Mage("Thoros of Myr");
             case "5" -> new Rogue("Arya Stark");
             case "6" -> new Rogue("Bronn");
+            case "7" -> new Hunter("Ygritte");
             default -> throw new IllegalArgumentException("Invalid input");
         };
     }
@@ -301,7 +327,7 @@ public class GameBoard implements GameBoardCallback {
         for (GameTile[] row : board) {
             for (GameTile tile : row)
                 if(tile != null)
-                    sb.append(tile.getType());
+                    sb.append(tile);
             sb.append('\n');
         }
         return sb.toString();
